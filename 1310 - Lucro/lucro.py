@@ -1,3 +1,4 @@
+import sys
 
 def leitura(nome_arquivo):
 
@@ -16,15 +17,15 @@ def leitura(nome_arquivo):
 
 def leitura_teclado():
 
-	num_dias = int(input())
-	custo_dia = int(input())
 	info = []
-	while(1):
-		valor = input()
-		if valor != 'EOF':
-			info.append(int(valor))
-		else:
+	for line in sys.stdin:
+		if line.replace('\n', '') == 'EOF':
 			break
+		info.append(int(line))
+	num_dias =  info[0]
+	custo_dia = info[1]
+	info.pop(0)
+	info.pop(0)
 	return num_dias, custo_dia, info
 
 def soma_subvetor(valores, num_dias): # algoritmo proposto em sala de aula pelo vinicius
@@ -50,6 +51,7 @@ def soma_subvetor(valores, num_dias): # algoritmo proposto em sala de aula pelo 
 if __name__ == '__main__':
 	
 	num_dias, custo_dia, valores = leitura_teclado()
+	
 	if num_dias == 0:
 		s = 0
 	if len(valores) == 0:

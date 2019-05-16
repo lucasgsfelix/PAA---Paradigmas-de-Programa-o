@@ -4,6 +4,14 @@
 
 using namespace std;
 
+class entrada{
+
+	public:
+		int num_dias;
+		int custo_dia;
+		vector <int> lista;
+};
+
 void leitura(const char* nome_arquivo, vector <int> *buffer)
 {
 	ifstream file;
@@ -15,55 +23,77 @@ void leitura(const char* nome_arquivo, vector <int> *buffer)
 	}
 	file.close();
 }
-void retira_custo(vector <int> *buffer, int custo_dia)
+void retira_custo(vector <entrada> *in, int j)
 {
-	for(int i=0;i<buffer->size();i++)
+	for(int i=0;i<in->at(j).lista.size();i++)
 	{
-		buffer->at(i) = buffer->at(i) - custo_dia;
+		in->at(j).lista[i] = in->at(j).lista[i] - in->at(j).custo_dia;	
 	}
 }
-int soma_subvetor(vector <int> *buffer, int num_dias, int inicial, int final)
+int soma_subvetor(vector <entrada> *in, int j, int inicial, int final)
 {
 	int x = 0;
 	if(final-inicial==1)
 	{
-		if (buffer->at(0) > 0)
+		if (in->at(j).lista[0] > 0)
 		{
-			return buffer->at(0);
+			return in->at(j).lista[0];
 		}
 		else
 		{
 			return 0;
 		}
 	}
-	x = soma_subvetor(buffer, num_dias, inicial, final-1);
+	x = soma_subvetor(in, j, inicial, final-1);
+	
 	int s = 0;
 	int i = final-inicial;
-
-	if(final-inicial <= num_dias)
+	while(i>0)
 	{
-		while(i>0)
+		s = s + in->at(j).lista[i];
+		if(s>x)
 		{
-			s = s + buffer->at(i);
-			if(s>x)
-			{
-				x = s;
-			}
-			i--;
+			x = s;
 		}
+		i--;
 	}
 	return x;
 }
-
+vector <entrada> montagem_entrada(vector <int> *buffer)
+{
+	vector <entrada> in;
+	entrada in_obj;
+	int cont;
+	for(int i=0;i<buffer->size();i++)
+	{
+		in_obj.num_dias = buffer->at(i);
+		in_obj.custo_dia = buffer->at(i+1);
+		i=i+2;
+		cont = 0;
+		while(cont<in_obj.num_dias)
+		{
+			in_obj.lista.push_back(buffer->at(i));
+			cont++;
+			i++;
+		}
+		i--;
+		in.push_back(in_obj);
+		in_obj.lista.clear();
+	}
+	return in;
+}
 int main()
 {
 	vector <int> buffer;
-	leitura("entrada.txt", &buffer);
-	int num_dias = buffer[0];
-	int custo_dia = buffer[1];
-	buffer.erase(buffer.begin()); //removendo elemento
-	buffer.erase(buffer.begin()); // removendo elemento
-	retira_custo(&buffer, custo_dia);
-	int s = soma_subvetor(&buffer, num_dias, 0, buffer.size()-1);
-	cout << s << "\n";
+	leitura("entrada3.txt", &buffer);
+	vector <entrada> in = montagem_entrada(&buffer);
+	int s;
+	for(int i=0;i<in.size();i++)
+	{
+		retira_custo(&in, i);
+		s = soma_subvetor(&in, i, 0, in[i].lista.size()-1);
+		cout << s << "\n";
+
+	}
+
 }
