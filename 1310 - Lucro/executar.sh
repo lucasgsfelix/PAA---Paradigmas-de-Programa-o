@@ -1,4 +1,4 @@
 #!/bin/bash
-#in=$1
+in=$1
 #out=$2
-time ./lucro
+time ./lucro $in

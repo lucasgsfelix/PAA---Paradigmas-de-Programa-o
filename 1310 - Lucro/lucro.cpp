@@ -48,7 +48,7 @@ int soma_subvetor(vector <entrada> *in, int j, int inicial, int final)
 	
 	int s = 0;
 	int i = final-inicial;
-	while(i>0)
+	while(i>=0)
 	{
 		s = s + in->at(j).lista[i];
 		if(s>x)
@@ -82,10 +82,10 @@ vector <entrada> montagem_entrada(vector <int> *buffer)
 	}
 	return in;
 }
-int main()
+int main(int argc, char *argv[])
 {
 	vector <int> buffer;
-	leitura("entrada3.txt", &buffer);
+	leitura(argv[1], &buffer);
 	vector <entrada> in = montagem_entrada(&buffer);
 	int s;
 	for(int i=0;i<in.size();i++)

@@ -50,7 +50,7 @@ def soma_subvetor(valores, num_dias): # algoritmo proposto em sala de aula pelo 
 
 if __name__ == '__main__':
 	
-	num_dias, custo_dia, valores = leitura_teclado()
+	num_dias, custo_dia, valores = leitura()
 	
 	if num_dias == 0:
 		s = 0
