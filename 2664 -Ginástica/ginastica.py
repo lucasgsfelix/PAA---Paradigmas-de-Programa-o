@@ -1,26 +1,27 @@
-
-def leitura(nome_arquivo):
-	arq = open(nome_arquivo, 'r')
-	info = arq.read()
-	arq.close()
-	info = info.split(' ')
-
-	return int(info[0]), int(info[1]), int(info[2])
-
-def faz_combinacoes(values, t, k):
-	## a melhor opção é já gerar as opções no formato correto
-	pass
+lista = []
+def ginastica_pd(d, i, t): 
 
 
-
-if __name__ == '__main__':
-	
-	t, m, n = leitura('entrada.txt')
-	# t é o número de minutos por exercícios
-	# m é o valor mínimo de dificuldade
-	# n é o valor máximo de dificuldade permitido
-	n = n+1
-	values = [i for i in range(m, n)]
-	lista, comb=[], []
-	comb = faz_combinacoes(values, t, 0)
-	print(comb)
+    if(i < d[1] or i > d[2]):
+        return 0
+    #print("Esse é o valor: ", i, " esse é o t: ", t)
+    #print(i, t)
+    if t == 1:
+        return 1
+    
+    soma = ginastica_pd(d, i-1, t-1) + ginastica_pd(d, i+1, t-1)
+    
+    return soma 
+  
+#Driver Code 
+if __name__=='__main__': 
+    t = 30
+    m = 2
+    n = 5
+    d = [t, m, n]
+    soma = 0
+    for i in range(m, n+1):
+        soma = ginastica_pd(d, i, t) + soma
+    print(soma)
+      
+#This code is contributed by sahilshelangia 
