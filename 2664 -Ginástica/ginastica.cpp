@@ -44,7 +44,8 @@ int ginastica_pd(data *d)
 	{
 		for(j=1;j<tamanho_coluna;j++)
 		{
-			m[iter_aux_j][j] = (m[iter_aux_i][j-1] + m[iter_aux_i][j+1]) % mod;
+			m[iter_aux_j][j] = (m[iter_aux_i][j-1] + m[iter_aux_i][j+1]);
+			m[iter_aux_j][j] = m[iter_aux_j][j] % mod
 		}
 		m[iter_aux_j][0] = m[iter_aux_i][1];
 		m[iter_aux_j][tamanho_coluna-1] = m[iter_aux_i][tamanho_coluna - 2];
@@ -54,19 +55,13 @@ int ginastica_pd(data *d)
 		iter_aux_j = aux;
 	}
 
-	cout << iter_aux_i << "\n";
-	for(i=0;i<d->t;i++)
+	for(j=0;j<tamanho_coluna;j++)
 	{
-		soma = 0;
-		for(j=0;j<tamanho_coluna;j++)
-		{
-			soma = (m[iter_aux_i][j] + soma) % mod;
-		}
-		//cout << soma << "\n";
+		soma = (m[iter_aux_i][j] + soma)
 	}
 		
 	
-	return soma;
+	return soma % mod;;
 
 }
 int main()
