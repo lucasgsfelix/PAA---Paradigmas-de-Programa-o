@@ -75,18 +75,18 @@ int mochila_binaria(diversao *d_inst)
 			}
 		}
 	}
-
 	return itens[d_inst->t];
-
 }
 
 int main()
 {
 	vector <diversao> div;
 	leitura(&div);
+	int s;
 	for(int i=0;i<div.size();i++)
 	{ // este problema se resumo no problema da mochila binária com repetições
-		mochila_binaria(&div[i]);
+		s = mochila_binaria(&div[i]);
+		cout << "Instancia " << i+1 << "\n" << s << "\n\n";
 	}
 
 

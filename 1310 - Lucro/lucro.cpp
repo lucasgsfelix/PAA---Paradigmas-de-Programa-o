@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
 
 using namespace std;
@@ -14,14 +13,11 @@ class entrada{
 
 void leitura(const char* nome_arquivo, vector <int> *buffer)
 {
-	ifstream file;
-	file.open(nome_arquivo);
 	int valor;
-	while(file>>valor)
+	while(cin>>valor)
 	{
 		buffer->push_back(valor);
 	}
-	file.close();
 }
 void retira_custo(vector <entrada> *in, int j)
 {
@@ -86,8 +82,8 @@ int main(int argc, char *argv[])
 {
 	vector <int> buffer;
 	leitura(argv[1], &buffer);
-	vector <entrada> in = montagem_entrada(&buffer);
 	int s;
+	vector <entrada> in = montagem_entrada(&buffer);
 	for(int i=0;i<in.size();i++)
 	{
 		retira_custo(&in, i);
@@ -95,5 +91,4 @@ int main(int argc, char *argv[])
 		cout << s << "\n";
 
 	}
-
 }
