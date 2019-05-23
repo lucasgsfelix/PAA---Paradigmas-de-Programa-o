@@ -86,9 +86,15 @@ int main(int argc, char *argv[])
 	vector <entrada> in = montagem_entrada(&buffer);
 	for(int i=0;i<in.size();i++)
 	{
-		retira_custo(&in, i);
-		s = soma_subvetor(&in, i, 0, in[i].lista.size()-1);
+		if((in[i].custo_dia >= 0 && in[i].custo_dia < 1000) && (in[i].num_dias > 1 && in[i].num_dias <= 50)) 
+		{
+			retira_custo(&in, i);
+			s = soma_subvetor(&in, i, 0, in[i].lista.size()-1);
+		}
+		else
+		{
+			s = 0;
+		}
 		cout << s << "\n";
-
 	}
 }
