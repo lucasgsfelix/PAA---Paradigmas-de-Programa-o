@@ -41,6 +41,18 @@ long long int ** alocar_matriz(long long int linhas, long long int colunas)
 	}
 	return m; //Retorna o Ponteiro para a Matriz Alocada
 }
+long long int sum(long long int **m, long long int tamanho_coluna, long long int iter_aux_i)
+{
+	long long int soma = 0;
+	for(int j=0;j<tamanho_coluna;j++)
+	{
+		/*
+			Somando a quantidade de possibilidades total que respeita as restrições
+		*/
+		soma = (m[iter_aux_i][j] + soma);
+	}
+	return soma;
+}
 int ginastica_pd(dados *d)
 {
 	/*
@@ -74,24 +86,34 @@ int ginastica_pd(dados *d)
 	{
 		for(j=1;j<tamanho_coluna;j++)
 		{
+			/*
+				Calculando a quantidade de combinações que cada valor por receber em um 
+				instante de tempo t
+			*/
 			m[iter_aux_j][j] = (m[iter_aux_i][j-1] + m[iter_aux_i][j+1]);
-			m[iter_aux_j][j] = m[iter_aux_j][j] % mod;
+			/*
+				Dividindo pelo mod para evitar problema com números muito grandes
+			*/
+			m[iter_aux_j][j] = m[iter_aux_j][j] % mod;  
 		}
+		/*
+			Salvando valores que serão armazenados na tabela
+		*/
 		m[iter_aux_j][0] = m[iter_aux_i][1];
 		m[iter_aux_j][tamanho_coluna-1] = m[iter_aux_i][tamanho_coluna - 2];
 
+		/*
+			lógica de variáveis auxiliares para guardar posições
+		*/
 		aux = iter_aux_i;
 		iter_aux_i = iter_aux_j;
 		iter_aux_j = aux;
 	}
 
-	for(j=0;j<tamanho_coluna;j++)
-	{
-		soma = (m[iter_aux_i][j] + soma);
-	}
-		
-	
-	return soma % mod;;
+	/*
+		Dividindo pelo mod para evitar problema com números muito grandes
+	*/
+	return sum(m, tamanho_coluna, iter_aux_i) % mod;
 
 }
 int main()
