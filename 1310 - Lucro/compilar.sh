@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ lucro.cpp -o lucro
+g++ -std=c++17 -O2 -lm lucro.cpp -o lucro

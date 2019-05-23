@@ -4,13 +4,13 @@
 
 using namespace std;
 
-class data{
+class dados{
 	public:
 		long long int t;
 		long long int m;
 		long long int n;
 };
-void leitura(data *d)
+void leitura(dados *d)
 {
 	long long int valor;
 	cin >> valor;
@@ -34,7 +34,7 @@ long long int ** alocar_matriz(long long int linhas, long long int colunas){ //R
 	}
 	return m; //Retorna o Ponteiro para a Matriz Alocada
 }
-int ginastica_pd(data *d)
+int ginastica_pd(dados *d)
 {
 	long long int i, j, tamanho_coluna = d->n - d->m + 1, soma = 0;
 	long long int iter_aux_i = 0, iter_aux_j = 1, aux = 0;
@@ -66,10 +66,15 @@ int ginastica_pd(data *d)
 }
 int main()
 {
-	data d;
+	dados d;
 	leitura(&d);
-	int s = ginastica_pd(&d);
-	cout << s << "\n";
+	
+	if(! d.t < 1 or d.t>50 or d.m < 1 or d.n < 1 or d.m > pow(10, 5) or d.n > pow(10, 5))
+	{
+		int s = ginastica_pd(&d);
+		cout << s << "\n";
+	}
+		
 
 	return 0;
 }
