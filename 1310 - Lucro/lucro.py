@@ -1,17 +1,8 @@
 import sys
 
-def leitura(nome_arquivo):
+def leitura():
 
-	arq = open(nome_arquivo, 'r')
-	info = arq.read()
-	info = info.split('\n')
-	arq.close()
-	if len(info) == 0:
-		return 0, 0, 0	
-	num_dias = int(info[0])
-	info.pop(0)
-	custo_dia = int(info[0])
-	info.pop(0)
+	while(i)
 
 	return num_dias, custo_dia, list(map(lambda x: int(x), info))
 

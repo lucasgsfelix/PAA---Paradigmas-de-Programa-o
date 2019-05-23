@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -9,6 +10,8 @@ class entrada{
 		int num_dias;
 		int custo_dia;
 		vector <int> lista;
+		int sufixo = 0;
+		int maior_valor = 0;
 };
 
 void leitura(const char* nome_arquivo, vector <int> *buffer)
@@ -25,35 +28,6 @@ void retira_custo(vector <entrada> *in, int j)
 	{
 		in->at(j).lista[i] = in->at(j).lista[i] - in->at(j).custo_dia;	
 	}
-}
-int soma_subvetor(vector <entrada> *in, int j, int inicial, int final)
-{
-	int x = 0;
-	if(final-inicial==1)
-	{
-		if (in->at(j).lista[0] > 0)
-		{
-			return in->at(j).lista[0];
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	x = soma_subvetor(in, j, inicial, final-1);
-	
-	int s = 0;
-	int i = final-inicial;
-	while(i>=0)
-	{
-		s = s + in->at(j).lista[i];
-		if(s>x)
-		{
-			x = s;
-		}
-		i--;
-	}
-	return x;
 }
 vector <entrada> montagem_entrada(vector <int> *buffer)
 {
@@ -78,6 +52,30 @@ vector <entrada> montagem_entrada(vector <int> *buffer)
 	}
 	return in;
 }
+int soma_subvetor(vector <entrada> *in, int j, int final)
+{
+	int x = 0;
+	
+	if(final==0)
+	{
+		x = max(0, in->at(j).lista[final]);
+		in->at(j).sufixo = x;
+		return x;
+	}
+	
+	x = soma_subvetor(in, j, final-1);
+
+	int aux = in->at(j).sufixo + in->at(j).lista[final];
+	int soma = max(x, aux);
+	in->at(j).sufixo = max(0, aux);
+
+	if(in->at(j).sufixo > in->at(j).maior_valor)
+	{
+		in->at(j).maior_valor = in->at(j).sufixo;
+	}
+
+	return x;
+}
 int main(int argc, char *argv[])
 {
 	vector <int> buffer;
@@ -86,15 +84,9 @@ int main(int argc, char *argv[])
 	vector <entrada> in = montagem_entrada(&buffer);
 	for(int i=0;i<in.size();i++)
 	{
-		if((in[i].custo_dia >= 0 && in[i].custo_dia < 1000) && (in[i].num_dias > 1 && in[i].num_dias <= 50)) 
-		{
-			retira_custo(&in, i);
-			s = soma_subvetor(&in, i, 0, in[i].lista.size()-1);
-		}
-		else
-		{
-			s = 0;
-		}
+		retira_custo(&in, i);
+		s = soma_subvetor(&in, i, in[i].lista.size()-1);
+		s = in[i].maior_valor;
 		cout << s << "\n";
 	}
 }
