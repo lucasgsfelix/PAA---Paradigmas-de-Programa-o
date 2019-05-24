@@ -14,6 +14,11 @@ class mesa
 	public:
 		int comprimento = 0;
 		int largura = 0;
+		/*
+			Essa terá que ter duas versões uma normal
+			e outra que roda 90º
+		*/
+		char **matrix_mesa;
 };
 class casa
 {
@@ -46,6 +51,34 @@ char ** alocar_matriz(int linhas, int colunas)
 
 	return m; //Retorna o Ponteiro para a Matriz Alocada
 }
+
+char **inicializa_mesas(int linhas, int colunas, char **m)
+{
+
+	/*
+		Método responsável por  inicializar a matriz de mesas com '.'
+		a partir disso será feito o casamento de caracteres
+	*/
+	for(int i=0;i<linhas;i++)
+	{
+		for(int j=0;j<colunas;j++)
+		{
+			m[i][j] = '.';
+			cout << m[i][j];
+		}
+	}
+	return m;
+
+}
+char **desaloca_matriz(char **mesa, int linhas)
+{
+	for (int i = 0; i < linhas; i++)
+	{
+        delete[] mesa[i];
+    }
+    delete[] mesa;
+    return mesa;
+}
 void leitura_montagem_casa(vector <char> *buffer, casa *c)
 {
 
@@ -56,12 +89,12 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 		Os outros dados serão armazenados em tipos primitivos
 	*/
 	int cont = 0, i = 0, j = 0, k = 0, valor;
+	char valor_aux; // redeclarando valor
+
 	cin >> valor; // lê o comprimento da casa
 	c->comprimento_casa = valor;
 	cin >> valor; // lê a largura da casa
 	c->largura_casa = valor;
-	char valor_aux; // redeclarando valor
-
 	/*
 		Alocando a matriz que será a casa
 	*/
@@ -99,21 +132,31 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 	}
 
 }
-
 int main()
 {
 	casa c; // objeto que irá armazenar a casa da entrada
 	vector <char> buffer;
 	leitura_montagem_casa(&buffer, &c);
-	buffer.clear();//limpadno buffer
+	buffer.clear();//limpando buffer
 
-	for(int i=0; i<c.comprimento_casa;i++)
+	for(int i=0; i<c.mesas.size();i++)
 	{
-		for(int j=0; j<c.largura_casa;j++)
+		/*
+			Iremos testar cada mesa das duas formas
+			normal e em 90º
+		*/
+		c.mesas[i].matrix_mesa = alocar_matriz(c.mesas[i].comprimento, c.mesas[i].largura);
+		c.mesas[i].matrix_mesa = inicializa_mesas(c.mesas[i].comprimento, 
+								c.mesas[i].largura, c.mesas[i].matrix_mesa);
+		// entra aqui caso a mesa não seja igual normal e em 90º
+		if(c.mesas[i].comprimento != c.mesas[i].largura)
 		{
-			cout << c.m[i][j];
+			c.mesas[i].matrix_mesa = desaloca_matriz(c.mesas[i].matrix_mesa, c.mesas[i].comprimento);
+			c.mesas[i].matrix_mesa = alocar_matriz(c.mesas[i].largura, c.mesas[i].comprimento);
+			c.mesas[i].matrix_mesa = inicializa_mesas(c.mesas[i].largura, 
+								c.mesas[i].comprimento, c.mesas[i].matrix_mesa);
 		}
-		cout << "\n";
+
 	}
 
 	return 0;
