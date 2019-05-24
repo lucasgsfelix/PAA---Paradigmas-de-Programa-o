@@ -34,50 +34,46 @@ class casa
 		vector <mesa> mesas;
 };
 
-char ** alocar_matriz(int linhas, int colunas)
+void alocar_matriz(int linhas, int colunas, casa *c)
 {
  	/*
 		Método responsável por realizar a alocação dinâmica de uma matriz
  	*/ 	
-  	int i,j;
-	char **m = (char**)malloc(linhas * sizeof(char*)); //Aloca um Vetor de Ponteiros
+	c->m = (char**)malloc(linhas * sizeof(char*)); //Aloca um Vetor de Ponteiros
+	for (int i = 0; i < linhas; i++)
+	{
+		/*
+			Aloca um Vetor de Inteiros para cada posição do Vetor de Ponteiros.
+		*/
+	  	c->m[i] = (char*) malloc(colunas * sizeof(char));
+	}
+
+}
+
+void alocar_matriz_mesa(int linhas, int colunas, casa *c, int k)
+{
+	int i,j;
+	c->mesas[k].matrix_mesa = (char**)malloc(linhas * sizeof(char*)); //Aloca um Vetor de Ponteiros
 	for (i = 0; i < linhas; i++)
 	{ //Percorre as linhas do Vetor de Ponteiros
 		/*
 			Aloca um Vetor de Inteiros para cada posição do Vetor de Ponteiros.
 		*/
-	  	m[i] = (char*) malloc(colunas * sizeof(char));
+	  	c->mesas[k].matrix_mesa[i] = (char*) malloc(colunas * sizeof(char));
+	  	for(j=0; j<colunas; j++)
+	  	{
+	  		c->mesas[k].matrix_mesa[i][j] = '.';
+	  	}
 	}
-
-	return m; //Retorna o Ponteiro para a Matriz Alocada
 }
 
-char **inicializa_mesas(int linhas, int colunas, char **m)
-{
-
-	/*
-		Método responsável por  inicializar a matriz de mesas com '.'
-		a partir disso será feito o casamento de caracteres
-	*/
-	for(int i=0;i<linhas;i++)
-	{
-		for(int j=0;j<colunas;j++)
-		{
-			m[i][j] = '.';
-			cout << m[i][j];
-		}
-	}
-	return m;
-
-}
-char **desaloca_matriz(char **mesa, int linhas)
+void desaloca_matriz(casa *c, int k, int linhas)
 {
 	for (int i = 0; i < linhas; i++)
 	{
-        delete[] mesa[i];
+        delete[] c->mesas[k].matrix_mesa[i];
     }
-    delete[] mesa;
-    return mesa;
+    delete[] c->mesas[k].matrix_mesa;
 }
 void leitura_montagem_casa(vector <char> *buffer, casa *c)
 {
@@ -88,7 +84,7 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 		As mesas em um vetor
 		Os outros dados serão armazenados em tipos primitivos
 	*/
-	int cont = 0, i = 0, j = 0, k = 0, valor;
+	int i = 0, j = 0, k = 0, valor;
 	char valor_aux; // redeclarando valor
 
 	cin >> valor; // lê o comprimento da casa
@@ -98,7 +94,7 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 	/*
 		Alocando a matriz que será a casa
 	*/
-	c->m = alocar_matriz(c->comprimento_casa, c->largura_casa);
+	alocar_matriz(c->comprimento_casa, c->largura_casa, c);
 	while(i < c->largura_casa * c->comprimento_casa)
 	{
 		/*
@@ -145,17 +141,22 @@ int main()
 			Iremos testar cada mesa das duas formas
 			normal e em 90º
 		*/
-		c.mesas[i].matrix_mesa = alocar_matriz(c.mesas[i].comprimento, c.mesas[i].largura);
-		c.mesas[i].matrix_mesa = inicializa_mesas(c.mesas[i].comprimento, 
-								c.mesas[i].largura, c.mesas[i].matrix_mesa);
-		// entra aqui caso a mesa não seja igual normal e em 90º
-		if(c.mesas[i].comprimento != c.mesas[i].largura)
+		alocar_matriz_mesa(c.mesas[i].comprimento, c.mesas[i].largura, &c, i);
+		for(int k=0;k<c.mesas[i].comprimento; k++)
 		{
-			c.mesas[i].matrix_mesa = desaloca_matriz(c.mesas[i].matrix_mesa, c.mesas[i].comprimento);
-			c.mesas[i].matrix_mesa = alocar_matriz(c.mesas[i].largura, c.mesas[i].comprimento);
-			c.mesas[i].matrix_mesa = inicializa_mesas(c.mesas[i].largura, 
-								c.mesas[i].comprimento, c.mesas[i].matrix_mesa);
+			for(int j=0;k<c.mesas[i].largura;j++)
+			{
+				cout << c.mesas[i].matrix_mesa[k][j];
+			}
+			cout << "\n";
 		}
+		exit(1);
+		desaloca_matriz(&c, i, c.mesas[i].comprimento);
+		// entra aqui caso a mesa não seja igual normal e em 90º
+		/*if(c.mesas[i].comprimento != c.mesas[i].largura)
+		{
+			continue;
+		}*/
 
 	}
 
