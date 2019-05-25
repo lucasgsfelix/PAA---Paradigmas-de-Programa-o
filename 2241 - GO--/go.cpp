@@ -105,7 +105,6 @@ void somando_dimensoes(jogadores *j)
 		{
 			for(l=0;l<j->dimensao_tab;l++)
 			{
-
 				c.y_inicial = k;
 				c.y_final = i+k;
 				c.x_inicial = l;
@@ -114,6 +113,7 @@ void somando_dimensoes(jogadores *j)
 					&& l <= j->dimensao_tab && i+l <= j->dimensao_tab)
 				{
 					c_list.push_back(c); // adicionando na lista de coordenadas
+
 				}
 			}
 		}
@@ -129,6 +129,9 @@ void somando_dimensoes(jogadores *j)
 		{
 			for(l=c_list[i].y_inicial;l<c_list[i].y_final;l++)
 			{
+				if(j->tabuleiro[k][l] == 0)
+					continue;
+
 				if(j->tabuleiro[k][l] == 1) // pretos
 				{
 					soma_pretos++;
@@ -136,6 +139,10 @@ void somando_dimensoes(jogadores *j)
 				else if(j->tabuleiro[k][l] == 2) // brancos
 				{
 					soma_brancos++;
+				}
+				if(soma_brancos > 1 && soma_pretos > 1)
+				{
+					break;
 				}
 			}
 		}
