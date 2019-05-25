@@ -99,7 +99,7 @@ void somando_dimensoes(jogadores *j)
 	int k, l;
 	vector <coordenadas> c_list;
 	coordenadas c;
-	for(int i=1;i<j->dimensao_tab-1;i++)
+	for(int i=0;i<j->dimensao_tab-1;i++)
 	{
 		for(k=0;k<j->dimensao_tab;k++)
 		{
@@ -156,7 +156,15 @@ int main()
 	jogadores j;
 	leitura_montagem_dados(&j); // também monta o tabuleiro
 	somando_dimensoes(&j);
-	cout << j.pontuacao_preto << " " << j.pontuacao_branco << "\n";
+	if (j.pontuacao_preto == 0 && j.pontuacao_branco == 0)
+	{
+		cout << j.pretas.size() << " " << j.brancas.size() << "\n";
+	}
+	else
+	{
+		cout << j.pontuacao_preto << " " << j.pontuacao_branco << "\n";
+	}
+	
 	/*for(int i=0;i<j.dimensao_tab;i++)
 	{
 		for(int k=0;k<j.dimensao_tab;k++)
