@@ -186,17 +186,38 @@ int main()
 	leitura_montagem_casa(&buffer, &c);
 	buffer.clear();//limpando buffer
 	int area_retangulo = calcula_subareas_contiguas(&c);
-	int aux = 0, i=0, aux_2, index_aux=0;
+	int i=0, melhor_solucao, aux_2, index_aux_single, aux;
 	aux = area_retangulo-(c.mesas[0].comprimento * c.mesas[0].largura);
 	for(i=1;i<c.mesas.size();i++)
-	{
+	{ // aqui acha a melhor solução
 		aux_2 = area_retangulo-(c.mesas[i].comprimento * c.mesas[i].largura);
-		if (aux_2 < aux && aux > 0 && aux_2 > 0)
+		if(aux > aux_2 && aux >= 0 && aux_2 >= 0)
 		{
 			aux = aux_2;
-			index_aux = i;
+			index_aux_single = i;
+		}
+		else if(aux_2 == aux)
+		{
+			if(c.mesas[index_aux_single].largura >= c.mesas[i].largura)
+			{
+				aux = aux_2;
+				index_aux_single = i;
+			}
+
 		}
 	}
-	cout << c.mesas[index_aux].comprimento << " " << c.mesas[index_aux].largura << "\n";
+	for(i=0;i<c.mesas.size();i++)
+	{ // aqui verifica se há iguais
+		aux_2 = area_retangulo-(c.mesas[i].comprimento * c.mesas[i].largura);
+		if(aux == aux_2)
+		{
+			if(c.mesas[index_aux_single].largura >= c.mesas[i].largura)
+			{
+				aux = aux_2;
+				index_aux_single = i;
+			}
+		}
+	}
+	cout << c.mesas[index_aux_single].comprimento << " " << c.mesas[index_aux_single].largura << "\n";
 	return 0;
 }
