@@ -48,8 +48,8 @@ int maxHist(int row[])
 				area = top_val * (i - result.top() - 1 ); 
 			max_area = max(area, max_area); 
 		} 
-	} 
-
+	}
+	cout << "Area "<< max_area << "\n";
 	// Now pop the remaining bars from stack and calculate area 
 	// with every popped bar as the smallest bar 
 	while (!result.empty()) 

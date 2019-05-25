@@ -117,8 +117,7 @@ int max_area_histograma(casa *c, int k)
 		qual a área máxima que podemos colocar a mesa
 	*/
 	vector <int> valores; // vai ter o comportamento de um pilha
-	int area = 0, area_maxima = 0, valor_topo = 0;
-	int i=0;
+	int area = 0, area_maxima = 0, valor_topo, i=0;
 	while(i<c->largura_casa)
 	{
 		if(valores.empty() || c->m[k][valores[valores.size()-1]] <= c->m[k][i])
@@ -138,19 +137,7 @@ int max_area_histograma(casa *c, int k)
 			area_maxima = max(area, area_maxima);
 		}
 	}
-
-	while(! valores.empty())
-	{
-		valor_topo = c->m[k][valores[valores.size()-1]];
-		valores.pop_back();
-		area = valor_topo * i;
-		if(! valores.empty())
-		{
-			area =  valor_topo * (i - valores[valores.size()-1] - 1);
-		}
-		area_maxima = max(area, area_maxima); 
-	}
-	return area_maxima/2;
+	return area_maxima;
 }
 int calcula_subareas_contiguas(casa *c)
 {
@@ -171,7 +158,7 @@ int calcula_subareas_contiguas(casa *c)
 		{
 			if(c->m[i][j] == 1)
 			{
-				c->m[i][j] += c->m[i-1][j] + 1;
+				c->m[i][j] += c->m[i-1][j];
 			}
 		}
 		area_retangulo = max(area_retangulo, max_area_histograma(c, i));
