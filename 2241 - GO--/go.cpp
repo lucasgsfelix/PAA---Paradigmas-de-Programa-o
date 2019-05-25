@@ -12,6 +12,17 @@ class pecas
 		int x = 0;
 		int y = 0;
 };
+class coordenadas
+{
+	/*
+		Irá armazenar as coordenadas que depois serão avaliadas;
+	*/
+	public:
+		int x_inicial = 0;
+		int x_final = 0;
+		int y_inicial = 0;
+		int y_final = 0;
+};
 class jogadores
 {
 	/*
@@ -77,7 +88,7 @@ void leitura_montagem_dados(jogadores *j)
 		j->brancas.push_back(p);
 	}
 }
-int somando_dimensoes(jogadores *j)
+void somando_dimensoes(jogadores *j)
 {
 	/*
 		Método responsável por fazer as principais computações que 
@@ -86,26 +97,66 @@ int somando_dimensoes(jogadores *j)
 		quais são as peças que há nas subáreas quadráticas. 
 	*/
 	int k, l;
+	vector <coordenadas> c_list;
+	coordenadas c;
 	for(int i=1;i<j->dimensao_tab-1;i++)
 	{
 		for(k=0;k<j->dimensao_tab;k++)
 		{
 			for(l=0;l<j->dimensao_tab;l++)
-			{	
-				cout << "Y:"<< k << " " << i + k << " X:" << l << " " << i + l << "\n";;
+			{
+
+				c.y_inicial = k;
+				c.y_final = i+k;
+				c.x_inicial = l;
+				c.x_final = i+l;
+				if(k <= j->dimensao_tab && i+k <= j->dimensao_tab
+					&& l <= j->dimensao_tab && i+l <= j->dimensao_tab)
+				{
+					c_list.push_back(c); // adicionando na lista de coordenadas
+				}
 			}
 		}
 	}
 
-	return 0;
+	int soma_pretos;
+	int soma_brancos;
+	for(int i=0;i<c_list.size();i++)
+	{
+		soma_brancos = 0;
+		soma_pretos = 0;
+		for(k=c_list[i].x_inicial;k<c_list[i].x_final;k++)
+		{
+			for(l=c_list[i].y_inicial;l<c_list[i].y_final;l++)
+			{
+				if(j->tabuleiro[k][l] == 1) // pretos
+				{
+					soma_pretos++;
+				}
+				else if(j->tabuleiro[k][l] == 2) // brancos
+				{
+					soma_brancos++;
+				}
+			}
+		}
+		if(soma_brancos == 0 && soma_pretos > 0)
+		{ // tem apenas pretos
+			j->pontuacao_preto = j->pontuacao_preto + 1;
+		}
+		else if(soma_pretos == 0 && soma_brancos > 0)
+		{
+			j->pontuacao_branco = j->pontuacao_branco + 1;
+		}
+	}
+	c_list.clear();
 }
 
 int main()
 {
 	jogadores j;
 	leitura_montagem_dados(&j); // também monta o tabuleiro
-	j.pontuacao_preto = somando_dimensoes(&j);
-
+	somando_dimensoes(&j);
+	cout << j.pontuacao_preto << " " << j.pontuacao_branco << "\n";
 	/*for(int i=0;i<j.dimensao_tab;i++)
 	{
 		for(int k=0;k<j.dimensao_tab;k++)
