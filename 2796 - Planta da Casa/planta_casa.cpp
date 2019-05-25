@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <string>
 #include <algorithm>
 
 using namespace std;
@@ -31,36 +30,22 @@ class casa
 		int largura_casa = 0;
 		int quantidade_mesas = 0;
 		int **m;
-		int **s; //irá armazenar a soma
 		vector <mesa> mesas;
 };
 
-void alocar_matriz(int linhas, int colunas, casa *c, int flag)
+void alocar_matriz(int linhas, int colunas, casa *c)
 {
  	/*
 		Método responsável por realizar a alocação dinâmica de uma matriz
  	*/ 	
- 	if(flag == 0)
- 	{
-		c->m = (int**)malloc(linhas * sizeof(int*)); //Aloca um Vetor de Ponteiros	
- 	}
- 	else
- 	{
- 		c->s = (int**)malloc(linhas * sizeof(int*)); //Aloca um Vetor de Ponteiros
- 	}
+
+	c->m = (int**)malloc(linhas * sizeof(int*)); //Aloca um Vetor de Ponteiros	
 	for (int i = 0; i < linhas; i++)
 	{
 		/*
 			Aloca um Vetor de Inteiros para cada posição do Vetor de Ponteiros.
 		*/
-		if(flag == 0)
-		{
-			c->m[i] = (int*) malloc(colunas * sizeof(int));
-		}
-		else
-		{
-			c->s[i] = (int*) malloc(colunas * sizeof(int));
-		}
+		c->m[i] = (int*) malloc(colunas * sizeof(int));
 	  	
 	}
 
@@ -84,7 +69,7 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 	/*
 		Alocando a matriz que será a casa
 	*/
-	alocar_matriz(c->comprimento_casa, c->largura_casa, c, 0);
+	alocar_matriz(c->comprimento_casa, c->largura_casa, c);
 	while(i < c->largura_casa * c->comprimento_casa)
 	{
 		/*
@@ -125,6 +110,48 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 	}
 
 }
+int max_area_histograma(casa *c, int k)
+{
+	/*
+		Calcula a área máxima do histograma, esta área irá representar
+		qual a área máxima que podemos colocar a mesa
+	*/
+	vector <int> valores; // vai ter o comportamento de um pilha
+	int area = 0, area_maxima = 0, valor_topo = 0;
+	int i=0;
+	while(i<c->largura_casa)
+	{
+		if(valores.empty() || c->m[k][valores[valores.size()-1]] <= c->m[k][i])
+		{
+			valores.push_back(i++);
+		}
+		else
+		{
+			valor_topo = c->m[k][valores[valores.size()-1]];
+			valores.pop_back(); // removendo o elemento do "topo da pilha"
+			area =  valor_topo * i;
+
+			if(! valores.empty())
+			{
+				area =  valor_topo * (i - valores[valores.size()-1] - 1);
+			}
+			area_maxima = max(area, area_maxima);
+		}
+	}
+
+	while(! valores.empty())
+	{
+		valor_topo = c->m[k][valores[valores.size()-1]];
+		valores.pop_back();
+		area = valor_topo * i;
+		if(! valores.empty())
+		{
+			area =  valor_topo * (i - valores[valores.size()-1] - 1);
+		}
+		area_maxima = max(area, area_maxima); 
+	}
+	return area_maxima/2;
+}
 int calcula_subareas_contiguas(casa *c)
 {
 	/*
@@ -136,64 +163,21 @@ int calcula_subareas_contiguas(casa *c)
 		Neste site a base de como foi calculado as subáreas contíguas
 	*/
 	int i, j;
-
-	alocar_matriz(c->comprimento_casa, c->largura_casa, c, 1); // alocando a matriz de soma
-	/*
-		Inicializando primeira linha e primeira coluna
-	*/
-	for(i=0;i<c->comprimento_casa;i++)
-	{
-		c->s[i][0] = c->m[i][0]; //copiando a primeira coluna
-	}
-	for(i=0;i<c->largura_casa;i++)
-	{
-		c->s[0][i] = c->m[0][i]; //copiando a primeira linha
-	}
-
+	int area_retangulo = max_area_histograma(c, 0);
 
 	for(i=1;i<c->comprimento_casa;i++)
 	{
-		for(j=1;j<c->largura_casa;j++)
+		for(j=0;j<c->largura_casa;j++)
 		{
 			if(c->m[i][j] == 1)
 			{
-				//c->s[i][j] = min(c->s[i][j-1], min(c->s[i-1][j], c->s[i-1][j-1])) + 1;
-				c->s[i][j] += c->s[i-1][j] + 1;
+				c->m[i][j] += c->m[i-1][j] + 1;
 			}
-			else
-			{
-				c->s[i][j] = 0;
-			}
-			cout << c->s[i][j];
 		}
-		cout << "\n";
+		area_retangulo = max(area_retangulo, max_area_histograma(c, i));
 	}
 
-	/*
-		Selecionando e salvando o melhor valor e index das linhas
-	*/
-	int best_i, best_j, local_best = c->s[0][0];
-	for(i=0;i<c->comprimento_casa;i++)
-	{
-		for(j=0;j<c->largura_casa;j++)
-		{
-			if(local_best < c->s[i][j])
-			{
-				local_best = c->s[i][j];
-				best_i = i;
-				best_j = j;
-			}
-		}
-	}
-	cout << "Local Best: " << local_best << "\n";
-	cout << best_i << " " << best_i - local_best << "\n";
-	int comprimento = best_i - (best_i-local_best);
-	cout << comprimento << "\n";
-	cout << best_j << " " << best_j - local_best << "\n";
-	int largura = best_j - (best_j - local_best);
-	cout << largura << "\n";
-	
-	return 0;
+	return area_retangulo;
 }
 int main()
 {
@@ -201,8 +185,18 @@ int main()
 	vector <char> buffer;
 	leitura_montagem_casa(&buffer, &c);
 	buffer.clear();//limpando buffer
-	calcula_subareas_contiguas(&c);
-
-
+	int area_retangulo = calcula_subareas_contiguas(&c);
+	int aux = 0, i=0, aux_2, index_aux=0;
+	aux = area_retangulo-(c.mesas[0].comprimento * c.mesas[0].largura);
+	for(i=1;i<c.mesas.size();i++)
+	{
+		aux_2 = area_retangulo-(c.mesas[i].comprimento * c.mesas[i].largura);
+		if (aux_2 < aux && aux > 0 && aux_2 > 0)
+		{
+			aux = aux_2;
+			index_aux = i;
+		}
+	}
+	cout << c.mesas[index_aux].comprimento << " " << c.mesas[index_aux].largura << "\n";
 	return 0;
 }
