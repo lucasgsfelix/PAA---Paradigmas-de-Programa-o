@@ -198,7 +198,7 @@ int main()
 		aux_2 = area_retangulo-(c.mesas[i].comprimento * c.mesas[i].largura);
 		if(aux == aux_2)
 		{
-			if(c.mesas[index_aux_single].largura >= c.mesas[i].largura)
+			if(c.mesas[index_aux_single].largura < c.mesas[i].largura)
 			{
 				aux = aux_2;
 				index_aux_single = i;
