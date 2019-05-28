@@ -1,7 +1,7 @@
 from random import randint
-N = 40 #linhas
-M = 80 #colunas
-NUM_MESAS = 100
+N = 1000 #linhas
+M = 1000 #colunas
+NUM_MESAS = 1000000
 
 def gerar_mesa():
     global N
@@ -30,6 +30,7 @@ for testes in range(0, 100):
     for i in range(NUM_MESAS):
         arquivo += gerar_mesa() 
 
-    text_file = open("Entradas/gerada_"+str(testes), "w")
+    text_file = open("Entradas/gerada_gigante_"+str(testes), "w")
     text_file.write("{}".format(arquivo))
     text_file.close()
+    break

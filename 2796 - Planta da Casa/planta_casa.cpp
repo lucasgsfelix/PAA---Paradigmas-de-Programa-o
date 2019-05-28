@@ -51,66 +51,6 @@ void alocar_matriz(int linhas, int colunas, casa *c)
 	}
 
 }
-void leitura_montagem_casa(vector <char> *buffer, casa *c)
-{
-
-	/*
-		Realiza a leitura do arquivo de dados e montagem da casa
-		A casa será armazenada em uma matriz
-		As mesas em um vetor
-		Os outros dados serão armazenados em tipos primitivos
-	*/
-	int i = 0, j = 0, k = 0, valor;
-	char valor_aux; // redeclarando valor
-
-	cin >> valor; // lê o comprimento da casa
-	c->comprimento_casa = valor;
-	cin >> valor; // lê a largura da casa
-	c->largura_casa = valor;
-	/*
-		Alocando a matriz que será a casa
-	*/
-	alocar_matriz(c->comprimento_casa, c->largura_casa, c);
-	while(i < c->largura_casa * c->comprimento_casa)
-	{
-		/*
-			Esta etapa monta o mapa da casa
-
-		*/
-		cin >> valor_aux;
-		if(valor_aux == '#')
-		{
-			c->m[k][j] = 0;
-		}
-		else if(valor_aux=='.')
-		{
-			c->m[k][j] =1;
-		}
-		i++;
-		j++;
-		if(j == c->largura_casa)
-		{
-			j = 0;
-			k++;
-		}
-	}
-	cin >> valor; // aqui estou lendo o número total de mesas
-	c->quantidade_mesas = valor;
-	mesa m; // objeto mesa temporario
-	i = 0;
-	while(i<c->quantidade_mesas)
-	{
-		/* Armazenando Mesas */
-		cin >> valor;
-		m.comprimento = valor; // largura de uma mesa
-		cin >> valor;
-		m.largura = valor; // comprimento de uma mesa
-		m.area = m.largura * m.comprimento;
-		c->mesas.push_back(m); // adicionando na lista de mesas
-		i++;
-	}
-
-}
 int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos)
 {
 	/*
@@ -182,33 +122,28 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
 		}
 		area_maxima = max(area_maxima, max_area_histograma(c, i, pontos_maximos));
 	}
+	free(c->m);
 	return area_maxima;
 }
-int main()
+int seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo)
 {
-	casa c; // objeto que irá armazenar a casa da entrada
-	vector <char> buffer;
-	leitura_montagem_casa(&buffer, &c);
-	buffer.clear();//limpando buffer
-	vector <mesa> pontos_maximos;
-	int area_retangulo = calcula_subareas_contiguas(&c, &pontos_maximos);
+	int aux = (c->largura_casa * c->comprimento_casa);
 	int i=0, j=0, aux_2, index_aux_single = 0;
-	int aux = (c.largura_casa * c.comprimento_casa);
-
-	for(i=0;i<c.mesas.size();i++)
+	
+	for(i=0;i<c->mesas.size();i++)
 	{
-		if(c.mesas[i].area <= area_retangulo)
+		if(c->mesas[i].area <= area_retangulo)
 		{
-			for(j=0;j<pontos_maximos.size();j++)
+			for(j=0;j<pontos_maximos->size();j++)
 			{
-				if(c.mesas[i].area <= pontos_maximos[j].area)
+				if(c->mesas[i].area <= pontos_maximos->at(j).area)
 				{ // obdece a restrição de área
-					if((c.mesas[i].largura <= pontos_maximos[j].largura && 
-						c.mesas[i].comprimento <= pontos_maximos[j].comprimento) ||
-						(c.mesas[i].comprimento <= pontos_maximos[j].largura && 
-						c.mesas[i].largura <= pontos_maximos[j].comprimento))
+					if((c->mesas[i].largura <= pontos_maximos->at(j).largura && 
+						c->mesas[i].comprimento <= pontos_maximos->at(j).comprimento) ||
+						(c->mesas[i].comprimento <= pontos_maximos->at(j).largura && 
+						c->mesas[i].largura <= pontos_maximos->at(j).comprimento))
 					{
-						aux_2 = pontos_maximos[j].area - c.mesas[i].area;
+						aux_2 = pontos_maximos->at(j).area - c->mesas[i].area;
 						if(aux > aux_2 && aux_2 >= 0)
 						{
 							aux = aux_2;
@@ -216,15 +151,15 @@ int main()
 						}
 						else if(aux_2 == aux)
 						{
-							if(c.mesas[i].area > c.mesas[index_aux_single].area)
+							if(c->mesas[i].area > c->mesas[index_aux_single].area)
 							{
 								aux = aux_2;
 								index_aux_single = i;	
 							}
-							else if(c.mesas[i].area == c.mesas[index_aux_single].area)
+							else if(c->mesas[i].area == c->mesas[index_aux_single].area)
 							{
 
-								if(c.mesas[i].largura > c.mesas[index_aux_single].largura)
+								if(c->mesas[i].largura > c->mesas[index_aux_single].largura)
 								{
 									aux = aux_2;
 									index_aux_single = i;
@@ -236,7 +171,80 @@ int main()
 			}
 		}
 	}
+	return index_aux_single;
+}
+void leitura_montagem_casa(casa *c)
+{
+
+	/*
+		Realiza a leitura do arquivo de dados e montagem da casa
+		A casa será armazenada em uma matriz
+		As mesas em um vetor
+		Os outros dados serão armazenados em tipos primitivos
+	*/
+	int i = 0, j = 0, k = 0, valor;
+	char valor_aux; // redeclarando valor
+
+	cin >> valor; // lê o comprimento da casa
+	c->comprimento_casa = valor;
+	cin >> valor; // lê a largura da casa
+	c->largura_casa = valor;
+	/*
+		Alocando a matriz que será a casa
+	*/
+	alocar_matriz(c->comprimento_casa, c->largura_casa, c);
+	while(i < c->largura_casa * c->comprimento_casa)
+	{
+		/*
+			Esta etapa monta o mapa da casa
+
+		*/
+		cin >> valor_aux;
+		if(valor_aux == '#')
+		{
+			c->m[k][j] = 0;
+		}
+		else if(valor_aux=='.')
+		{
+			c->m[k][j] =1;
+		}
+		i++;
+		j++;
+		if(j == c->largura_casa)
+		{
+			j = 0;
+			k++;
+		}
+	}
+	vector <mesa> pontos_maximos;
+	int area_retangulo = calcula_subareas_contiguas(c, &pontos_maximos);
+	cin >> valor; // aqui estou lendo o número total de mesas
+	c->quantidade_mesas = valor;
+	mesa m; // objeto mesa temporario
+	i = 0;
+	while(i<c->quantidade_mesas)
+	{
+		/* Armazenando Mesas */
+		cin >> valor;
+		m.comprimento = valor; // largura de uma mesa
+		cin >> valor;
+		m.largura = valor; // comprimento de uma mesa
+		m.area = m.largura * m.comprimento;
+		if(area_retangulo >= m.area)
+			c->mesas.push_back(m); // adicionando na lista de mesas	
+		i++;
+	}
+
+	int index = seleciona_melhor(c, &pontos_maximos, area_retangulo);
+	cout << c->mesas[index].comprimento << " " << c->mesas[index].largura << "\n";
 	
-	cout << c.mesas[index_aux_single].comprimento << " " << c.mesas[index_aux_single].largura << "\n";
+}
+int main()
+{
+	ios_base::sync_with_stdio(false); // Toggle off synchronization of all the C++ standard streams
+    cin.tie(NULL);                    // Disable the flushing of std::cout before std::cin accepts an input
+	casa c; // objeto que irá armazenar a casa da entrada
+	leitura_montagem_casa(&c);
+	
 	return 0;
 }

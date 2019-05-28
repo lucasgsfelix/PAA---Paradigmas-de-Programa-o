@@ -14,6 +14,7 @@ class mesa
 	public:
 		int comprimento = 0;
 		int largura = 0;
+		int area;
 		/*
 			Essa terá que ter duas versões uma normal
 			e outra que roda 90º
@@ -49,6 +50,80 @@ void alocar_matriz(int linhas, int colunas, casa *c)
 	  	
 	}
 
+}
+int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos)
+{
+	/*
+		Calcula a área máxima do histograma, esta área irá representar
+		qual a área máxima que podemos colocar a mesa
+	*/
+	vector <int> valores; // vai ter o comportamento de um pilha
+	int area = 0, valor_topo, i=0, flag = 0, area_maxima = 0;
+	mesa m_aux;
+	while(i<c->largura_casa)
+	{
+		if(valores.empty() || c->m[k][valores[valores.size()-1]] <= c->m[k][i])
+		{
+			valores.push_back(i++);
+		}
+		else
+		{
+			valor_topo = c->m[k][valores[valores.size()-1]];
+			valores.pop_back(); // removendo o elemento do "topo da pilha"
+			area =  valor_topo * i;
+
+			if(! valores.empty())
+			{
+				area =  valor_topo * (i - valores[valores.size()-1] - 1);
+				flag = 1;
+			}
+			if(area > area_maxima)
+			{
+				area_maxima = area;
+				m_aux.comprimento = valor_topo;
+				if(flag == 1)
+				{
+					m_aux.largura = ((i - valores[valores.size()-1] - 1));
+					flag = 0;
+				}
+				else
+				{
+					m_aux.largura = i;
+				}
+				m_aux.area = m_aux.largura * m_aux.comprimento;
+				pontos_maximos->push_back(m_aux);
+			}
+		}
+	}
+	return area_maxima;
+}
+int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
+{
+	/*
+		Função responsável por calcular as 
+		maiores subáreas contíguas que a casa possui,
+		pois é lá que a mesa irá ficar.
+		Este problema pode ser resolvido com programação dinâmica
+		https://www.geeksforgeeks.org/maximum-size-rectangle-binary-sub-matrix-1s/
+		Neste site a base de como foi calculado as subáreas contíguas
+	*/
+	int i, j, area_maxima = 0;
+	max_area_histograma(c, 0, pontos_maximos);
+	int area_maxima_antiga;
+	for(i=1;i<c->comprimento_casa;i++)
+	{
+		for(j=0;j<c->largura_casa;j++)
+		{
+			if(c->m[i][j] == 1)
+			{
+				c->m[i][j] += c->m[i-1][j];
+			}
+			
+		}
+		area_maxima = max(area_maxima, max_area_histograma(c, i, pontos_maximos));
+	}
+	free(c->m);
+	return area_maxima;
 }
 void leitura_montagem_casa(vector <char> *buffer, casa *c)
 {
@@ -93,6 +168,8 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 			k++;
 		}
 	}
+	vector <mesa> pontos_maximos;
+	int area_retangulo = calcula_subareas_contiguas(c, &pontos_maximos);
 	cin >> valor; // aqui estou lendo o número total de mesas
 	c->quantidade_mesas = valor;
 	mesa m; // objeto mesa temporario
@@ -104,121 +181,69 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 		m.comprimento = valor; // largura de uma mesa
 		cin >> valor;
 		m.largura = valor; // comprimento de uma mesa
-		c->mesas.push_back(m); // adicionando na lista de mesas
+		m.area = m.largura * m.comprimento;
+		if(area_retangulo >= m.area)
+			c->mesas.push_back(m); // adicionando na lista de mesas	
 		i++;
 	}
+	exit(1);
 
-}
-int max_area_histograma(casa *c, int k)
-{
-	/*
-		Calcula a área máxima do histograma, esta área irá representar
-		qual a área máxima que podemos colocar a mesa
-	*/
-	vector <int> valores; // vai ter o comportamento de um pilha
-	int area = 0, area_maxima = 0, valor_topo, i=0;
-	while(i<c->largura_casa)
-	{
-		if(valores.empty() || c->m[k][valores[valores.size()-1]] <= c->m[k][i])
-		{
-			valores.push_back(i++);
-		}
-		else
-		{
-			valor_topo = c->m[k][valores[valores.size()-1]];
-			valores.pop_back(); // removendo o elemento do "topo da pilha"
-			area =  valor_topo * i;
-
-			if(! valores.empty())
-			{
-				area =  valor_topo * (i - valores[valores.size()-1] - 1);
-			}
-			area_maxima = max(area, area_maxima);
-		}
-	}
-	return area_maxima;
-}
-int calcula_subareas_contiguas(casa *c)
-{
-	/*
-		Função responsável por calcular as 
-		maiores subáreas contíguas que a casa possui,
-		pois é lá que a mesa irá ficar.
-		Este problema pode ser resolvido com programação dinâmica
-		https://www.geeksforgeeks.org/maximum-size-rectangle-binary-sub-matrix-1s/
-		Neste site a base de como foi calculado as subáreas contíguas
-	*/
-	int i, j;
-	int area_retangulo = max_area_histograma(c, 0);
-	for(i=1;i<c->comprimento_casa;i++)
-	{
-		for(j=0;j<c->largura_casa;j++)
-		{
-			if(c->m[i][j] == 1)
-			{
-				c->m[i][j] += c->m[i-1][j];
-			}
-			
-		}
-		area_retangulo = max(area_retangulo, max_area_histograma(c, i));
-	}
-
-	return area_retangulo;
-}
-void calcula_area_possiveis(int area_retangulo, vector <mesa> *areas_possiveis)
-{
-	mesa area;
-	for(int i=0;i<area_retangulo;i++) // calculando multiplicações que chegam ao valor esperado
-	{
-		for(int j=0;j<area_retangulo;j++)
-		{
-			if(i*j == area_retangulo)
-			{
-				area.comprimento = i;
-				area.largura = j;
-				areas_possiveis->push_back(area);
-			}
-		}
-	}
 }
 int main()
 {
+	ios_base::sync_with_stdio(false); // Toggle off synchronization of all the C++ standard streams
+    cin.tie(NULL);                    // Disable the flushing of std::cout before std::cin accepts an input
 	casa c; // objeto que irá armazenar a casa da entrada
 	vector <char> buffer;
 	leitura_montagem_casa(&buffer, &c);
 	buffer.clear();//limpando buffer
-	int area_retangulo = calcula_subareas_contiguas(&c);
-	int i=0, j=0, melhor_solucao, aux_2, index_aux_single = 0, aux;
-	vector <mesa> areas_possiveis;
-	
-	aux = area_retangulo-(c.mesas[0].comprimento * c.mesas[0].largura);
-	for(i=1;i<c.mesas.size();i++)
-	{ // aqui acha a melhor solução
-		aux_2 = area_retangulo-(c.mesas[i].comprimento * c.mesas[i].largura);
-		//cout << aux_2 << " " << c.mesas[i].comprimento << " " << c.mesas[i].largura << "\n"
-		if(aux > aux_2 && aux >= 0 && aux_2 >= 0)
-		{
-			aux = aux_2;
-			index_aux_single = i;
-		}
-		else if(aux < 0)
-		{
-			if(aux_2 > 0)
-			{
-				aux = aux_2;
-				index_aux_single = i;
-			}
-		}
-		if(aux_2 == aux)
-		{
-			if(c.mesas[index_aux_single].largura < c.mesas[i].largura)
-			{
-				aux = aux_2;
-				index_aux_single = i;
-			}
+	vector <mesa> pontos_maximos;
+	int area_retangulo = calcula_subareas_contiguas(&c, &pontos_maximos);
+	int i=0, j=0, aux_2, index_aux_single = 0;
+	int aux = (c.largura_casa * c.comprimento_casa);
 
+	for(i=0;i<c.mesas.size();i++)
+	{
+		if(c.mesas[i].area <= area_retangulo)
+		{
+			for(j=0;j<pontos_maximos.size();j++)
+			{
+				if(c.mesas[i].area <= pontos_maximos[j].area)
+				{ // obdece a restrição de área
+					if((c.mesas[i].largura <= pontos_maximos[j].largura && 
+						c.mesas[i].comprimento <= pontos_maximos[j].comprimento) ||
+						(c.mesas[i].comprimento <= pontos_maximos[j].largura && 
+						c.mesas[i].largura <= pontos_maximos[j].comprimento))
+					{
+						aux_2 = pontos_maximos[j].area - c.mesas[i].area;
+						if(aux > aux_2 && aux_2 >= 0)
+						{
+							aux = aux_2;
+							index_aux_single = i;
+						}
+						else if(aux_2 == aux)
+						{
+							if(c.mesas[i].area > c.mesas[index_aux_single].area)
+							{
+								aux = aux_2;
+								index_aux_single = i;	
+							}
+							else if(c.mesas[i].area == c.mesas[index_aux_single].area)
+							{
+
+								if(c.mesas[i].largura > c.mesas[index_aux_single].largura)
+								{
+									aux = aux_2;
+									index_aux_single = i;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-	}*
+	}
+	
 	cout << c.mesas[index_aux_single].comprimento << " " << c.mesas[index_aux_single].largura << "\n";
 	return 0;
 }
