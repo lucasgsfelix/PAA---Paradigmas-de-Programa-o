@@ -105,6 +105,7 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 		m.comprimento = valor; // largura de uma mesa
 		cin >> valor;
 		m.largura = valor; // comprimento de uma mesa
+		m.area = m.largura * m.comprimento;
 		c->mesas.push_back(m); // adicionando na lista de mesas
 		i++;
 	}
@@ -191,42 +192,43 @@ int main()
 	buffer.clear();//limpando buffer
 	vector <mesa> pontos_maximos;
 	int area_retangulo = calcula_subareas_contiguas(&c, &pontos_maximos);
-	int i=0, j=0, melhor_solucao, aux_2, index_aux_single = 0, aux;
-	vector <mesa> areas_possiveis;
-	aux = (c.largura_casa * c.comprimento_casa);
+	int i=0, j=0, aux_2, index_aux_single = 0;
+	int aux = (c.largura_casa * c.comprimento_casa);
+
 	for(i=0;i<c.mesas.size();i++)
 	{
-		for(j=0;j<pontos_maximos.size();j++)
+		if(c.mesas[i].area <= area_retangulo)
 		{
-			if(c.mesas[i].largura * c.mesas[i].comprimento <= pontos_maximos[j].area)
-			{ // obdece a restrição de área
-				if((c.mesas[i].largura <= pontos_maximos[j].largura && 
-					c.mesas[i].comprimento <= pontos_maximos[j].comprimento) ||
-					(c.mesas[i].comprimento <= pontos_maximos[j].largura && 
-					c.mesas[i].largura <= pontos_maximos[j].comprimento))
-				{
-					aux_2 = pontos_maximos[j].area - (c.mesas[i].largura * c.mesas[i].comprimento);
-					if(aux > aux_2 && aux_2 >= 0)
+			for(j=0;j<pontos_maximos.size();j++)
+			{
+				if(c.mesas[i].area <= pontos_maximos[j].area)
+				{ // obdece a restrição de área
+					if((c.mesas[i].largura <= pontos_maximos[j].largura && 
+						c.mesas[i].comprimento <= pontos_maximos[j].comprimento) ||
+						(c.mesas[i].comprimento <= pontos_maximos[j].largura && 
+						c.mesas[i].largura <= pontos_maximos[j].comprimento))
 					{
-						aux = aux_2;
-						index_aux_single = i;
-					}
-					else if(aux_2 == aux)
-					{
-						if(c.mesas[i].largura * c.mesas[i].comprimento >
-						c.mesas[index_aux_single].largura * c.mesas[index_aux_single].comprimento)
+						aux_2 = pontos_maximos[j].area - c.mesas[i].area;
+						if(aux > aux_2 && aux_2 >= 0)
 						{
 							aux = aux_2;
-							index_aux_single = i;	
+							index_aux_single = i;
 						}
-						if(c.mesas[i].largura * c.mesas[i].comprimento ==
-						c.mesas[index_aux_single].largura * c.mesas[index_aux_single].comprimento)
+						else if(aux_2 == aux)
 						{
-
-							if(c.mesas[i].largura > c.mesas[index_aux_single].largura)
+							if(c.mesas[i].area > c.mesas[index_aux_single].area)
 							{
 								aux = aux_2;
-								index_aux_single = i;
+								index_aux_single = i;	
+							}
+							else if(c.mesas[i].area == c.mesas[index_aux_single].area)
+							{
+
+								if(c.mesas[i].largura > c.mesas[index_aux_single].largura)
+								{
+									aux = aux_2;
+									index_aux_single = i;
+								}
 							}
 						}
 					}
