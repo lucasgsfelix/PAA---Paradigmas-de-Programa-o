@@ -132,45 +132,40 @@ int seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo)
 	
 	for(i=0;i<c->mesas.size();i++)
 	{
-		if(c->mesas[i].area <= area_retangulo)
+		for(j=0;j<pontos_maximos->size();j++)
 		{
-			for(j=0;j<pontos_maximos->size();j++)
-			{
-				if(c->mesas[i].area <= pontos_maximos->at(j).area)
-				{ // obdece a restrição de área
-					if((c->mesas[i].largura <= pontos_maximos->at(j).largura && 
-						c->mesas[i].comprimento <= pontos_maximos->at(j).comprimento) ||
-						(c->mesas[i].comprimento <= pontos_maximos->at(j).largura && 
-						c->mesas[i].largura <= pontos_maximos->at(j).comprimento))
+			if(c->mesas[i].area <= pontos_maximos->at(j).area)
+			{ // obdece a restrição de área
+				if((c->mesas[i].largura <= pontos_maximos->at(j).largura && 
+					c->mesas[i].comprimento <= pontos_maximos->at(j).comprimento) ||
+					(c->mesas[i].comprimento <= pontos_maximos->at(j).largura && 
+					c->mesas[i].largura <= pontos_maximos->at(j).comprimento))
+				{
+					aux_2 = pontos_maximos->at(j).area - c->mesas[i].area;
+					if(aux > aux_2)
 					{
-						aux_2 = pontos_maximos->at(j).area - c->mesas[i].area;
-						if(aux > aux_2 && aux_2 >= 0)
+						aux = aux_2;
+						index_aux_single = i;
+					}
+					else if(aux_2 == aux)
+					{
+						if(c->mesas[i].area > c->mesas[index_aux_single].area)
+						{
+							aux = aux_2;
+							index_aux_single = i;	
+						}
+						else if(c->mesas[i].largura > c->mesas[index_aux_single].largura &&
+							c->mesas[i].area == c->mesas[index_aux_single].area)
 						{
 							aux = aux_2;
 							index_aux_single = i;
-						}
-						else if(aux_2 == aux)
-						{
-							if(c->mesas[i].area > c->mesas[index_aux_single].area)
-							{
-								aux = aux_2;
-								index_aux_single = i;	
-							}
-							else if(c->mesas[i].area == c->mesas[index_aux_single].area)
-							{
-
-								if(c->mesas[i].largura > c->mesas[index_aux_single].largura)
-								{
-									aux = aux_2;
-									index_aux_single = i;
-								}
-							}
 						}
 					}
 				}
 			}
 		}
 	}
+	c->mesas.clear();
 	return index_aux_single;
 }
 void leitura_montagem_casa(casa *c)
@@ -234,7 +229,6 @@ void leitura_montagem_casa(casa *c)
 			c->mesas.push_back(m); // adicionando na lista de mesas	
 		i++;
 	}
-
 	int index = seleciona_melhor(c, &pontos_maximos, area_retangulo);
 	cout << c->mesas[index].comprimento << " " << c->mesas[index].largura << "\n";
 	
