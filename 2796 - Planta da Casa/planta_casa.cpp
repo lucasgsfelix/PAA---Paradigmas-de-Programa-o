@@ -139,6 +139,10 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
 		}
 		area_maxima = max(area_maxima, max_area_histograma(c, i, pontos_maximos));
 	}
+	for(i=0;i<c->comprimento_casa;i++) // liberando espaço de memória
+	{
+		free(c->m[i]);
+	}
 	free(c->m);
 	return area_maxima;
 }
@@ -156,7 +160,7 @@ void seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo
 				if((c->mesas[i].largura <= pontos_maximos->at(j).largura && 
 					c->mesas[i].comprimento <= pontos_maximos->at(j).comprimento) ||
 					(c->mesas[i].comprimento <= pontos_maximos->at(j).largura && 
-					c->mesas[i].largura <= pontos_maximos->at(j).comprimento))
+					c->mesas[i].largura <= pontos_maximos->at(j).comprimento)) // aqui por causa dos 90º
 				{
 					aux_2 = pontos_maximos->at(j).area - c->mesas[i].area;
 					if(aux > aux_2)
@@ -227,21 +231,30 @@ void leitura_montagem_casa(casa *c)
 			k++;
 		}
 	}
+	
 	vector <mesa> pontos_maximos;
 	int area_retangulo = calcula_subareas_contiguas(c, &pontos_maximos);
 	cin >> c->quant_mesas; // aqui estou lendo o número total de mesas
 	mesa m; // objeto mesa temporario
-	for(i=0;i<c->quant_mesas;i++)
+	vector <int> buffer;
+	buffer.resize(c->quant_mesas*2); // largura e comprimento de ccada mesa
+	i=0;
+	while(cin >> buffer[i])
 	{
-		/* Armazenando Mesas */
-		cin >> m.comprimento >> m.largura;
-		//cout << m.comprimento << " " << m.largura << "\n";
-		m.area = m.largura * m.comprimento;
-		if(area_retangulo >= m.area)
+		i++;
+	}
+	for(i=0;i<buffer.size();i++)
+	{
+		m.comprimento = buffer[i];
+		m.largura = buffer[i+1];
+		i++;
+		m.area = m.comprimento * m.largura;
+		if(m.area <= area_retangulo)
 		{
-			c->mesas.push_back(m); // adicionando na lista de mesas	
+			c->mesas.push_back(m);
 		}
 	}
+	buffer.clear();
 	seleciona_melhor(c, &pontos_maximos, area_retangulo);
 	
 }

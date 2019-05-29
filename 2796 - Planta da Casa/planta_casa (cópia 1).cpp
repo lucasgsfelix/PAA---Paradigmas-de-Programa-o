@@ -1,6 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>
+#include <bits/stdc++.h> 
 
 using namespace std;
 
@@ -29,27 +27,42 @@ class casa
 	public: 
 		int comprimento_casa = 0;
 		int largura_casa = 0;
-		int quantidade_mesas = 0;
+		int quant_mesas = 0;
 		int **m;
 		vector <mesa> mesas;
 };
 
-void alocar_matriz(int linhas, int colunas, casa *c)
+void alocar_matriz(casa *c)
 {
  	/*
 		Método responsável por realizar a alocação dinâmica de uma matriz
  	*/ 	
 
-	c->m = (int**)malloc(linhas * sizeof(int*)); //Aloca um Vetor de Ponteiros	
-	for (int i = 0; i < linhas; i++)
+	c->m = (int**)malloc(c->comprimento_casa * sizeof(int*)); //Aloca um Vetor de Ponteiros	
+	for (int i = 0; i < c->comprimento_casa; i++)
 	{
 		/*
 			Aloca um Vetor de Inteiros para cada posição do Vetor de Ponteiros.
 		*/
-		c->m[i] = (int*) malloc(colunas * sizeof(int));
+		c->m[i] = (int*) malloc(c->largura_casa * sizeof(int));
 	  	
 	}
 
+}
+int verifica_existencia(vector <mesa> *pontos_maximos, int comprimento, int largura)
+{
+	// 1 se existe , 0 se não existe
+
+	for(int i=0;i<pontos_maximos->size();i++)
+	{
+		if(pontos_maximos->at(i).comprimento == comprimento && pontos_maximos->at(i).largura == largura)
+		{
+			return 1;
+		}
+	}
+
+
+	return 0;
 }
 int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos)
 {
@@ -90,11 +103,15 @@ int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos)
 				{
 					m_aux.largura = i;
 				}
-				m_aux.area = m_aux.largura * m_aux.comprimento;
-				pontos_maximos->push_back(m_aux);
+				if(verifica_existencia(pontos_maximos, m_aux.comprimento, m_aux.largura) == 0)
+				{
+					m_aux.area = m_aux.largura * m_aux.comprimento;
+					pontos_maximos->push_back(m_aux);	
+				}
 			}
 		}
 	}
+	valores.clear();
 	return area_maxima;
 }
 int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
@@ -122,10 +139,56 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
 		}
 		area_maxima = max(area_maxima, max_area_histograma(c, i, pontos_maximos));
 	}
+	for(i=0;i<c->comprimento_casa;i++) // liberando espaço de memória
+	{
+		free(c->m[i]);
+	}
 	free(c->m);
 	return area_maxima;
 }
-void leitura_montagem_casa(vector <char> *buffer, casa *c)
+void seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo)
+{
+	int aux = (c->largura_casa * c->comprimento_casa);
+	int i=0, j=0, aux_2, index_aux_single = 0;
+	
+	for(i=0;i<c->mesas.size();i++)
+	{
+		for(j=0;j<pontos_maximos->size();j++)
+		{
+			if(c->mesas[i].area <= pontos_maximos->at(j).area)
+			{ // obdece a restrição de área
+				if((c->mesas[i].largura <= pontos_maximos->at(j).largura && 
+					c->mesas[i].comprimento <= pontos_maximos->at(j).comprimento) ||
+					(c->mesas[i].comprimento <= pontos_maximos->at(j).largura && 
+					c->mesas[i].largura <= pontos_maximos->at(j).comprimento)) // aqui por causa dos 90º
+				{
+					aux_2 = pontos_maximos->at(j).area - c->mesas[i].area;
+					if(aux > aux_2)
+					{
+						aux = aux_2;
+						index_aux_single = i;
+					}
+					else if(aux_2 == aux)
+					{
+						if(c->mesas[i].area > c->mesas[index_aux_single].area)
+						{
+							aux = aux_2;
+							index_aux_single = i;	
+						}
+						else if(c->mesas[i].largura > c->mesas[index_aux_single].largura &&
+							c->mesas[i].area == c->mesas[index_aux_single].area)
+						{
+							aux = aux_2;
+							index_aux_single = i;
+						}
+					}
+				}
+			}
+		}
+	}
+	cout << c->mesas[index_aux_single].comprimento << " " << c->mesas[index_aux_single].largura << "\n";
+}
+void leitura_montagem_casa(casa *c)
 {
 
 	/*
@@ -134,17 +197,17 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 		As mesas em um vetor
 		Os outros dados serão armazenados em tipos primitivos
 	*/
-	int i = 0, j = 0, k = 0, valor;
+
+	ios_base::sync_with_stdio(false); // Toggle off synchronization of all the C++ standard streams
+    cin.tie(NULL);                    // Disable the flushing of std::cout before std::cin accepts an input
+	int i = 0, j = 0, k = 0;
 	char valor_aux; // redeclarando valor
 
-	cin >> valor; // lê o comprimento da casa
-	c->comprimento_casa = valor;
-	cin >> valor; // lê a largura da casa
-	c->largura_casa = valor;
+	cin >> c->comprimento_casa >> c->largura_casa; // lê o comprimento da casa
 	/*
 		Alocando a matriz que será a casa
 	*/
-	alocar_matriz(c->comprimento_casa, c->largura_casa, c);
+	alocar_matriz(c);
 	while(i < c->largura_casa * c->comprimento_casa)
 	{
 		/*
@@ -168,82 +231,30 @@ void leitura_montagem_casa(vector <char> *buffer, casa *c)
 			k++;
 		}
 	}
+	
 	vector <mesa> pontos_maximos;
 	int area_retangulo = calcula_subareas_contiguas(c, &pontos_maximos);
-	cin >> valor; // aqui estou lendo o número total de mesas
-	c->quantidade_mesas = valor;
+	cin >> c->quant_mesas; // aqui estou lendo o número total de mesas
 	mesa m; // objeto mesa temporario
-	i = 0;
-	while(i<c->quantidade_mesas)
+	//vector <int> buffer;
+	//vector.size(c->quant_mesas);
+	for(i=0;i<c->quant_mesas;i++)
 	{
 		/* Armazenando Mesas */
-		cin >> valor;
-		m.comprimento = valor; // largura de uma mesa
-		cin >> valor;
-		m.largura = valor; // comprimento de uma mesa
+		cin >> m.comprimento >> m.largura;
 		m.area = m.largura * m.comprimento;
 		if(area_retangulo >= m.area)
+		{
 			c->mesas.push_back(m); // adicionando na lista de mesas	
-		i++;
+		}
 	}
-	exit(1);
-
+	seleciona_melhor(c, &pontos_maximos, area_retangulo);
+	
 }
 int main()
 {
-	ios_base::sync_with_stdio(false); // Toggle off synchronization of all the C++ standard streams
-    cin.tie(NULL);                    // Disable the flushing of std::cout before std::cin accepts an input
 	casa c; // objeto que irá armazenar a casa da entrada
-	vector <char> buffer;
-	leitura_montagem_casa(&buffer, &c);
-	buffer.clear();//limpando buffer
-	vector <mesa> pontos_maximos;
-	int area_retangulo = calcula_subareas_contiguas(&c, &pontos_maximos);
-	int i=0, j=0, aux_2, index_aux_single = 0;
-	int aux = (c.largura_casa * c.comprimento_casa);
-
-	for(i=0;i<c.mesas.size();i++)
-	{
-		if(c.mesas[i].area <= area_retangulo)
-		{
-			for(j=0;j<pontos_maximos.size();j++)
-			{
-				if(c.mesas[i].area <= pontos_maximos[j].area)
-				{ // obdece a restrição de área
-					if((c.mesas[i].largura <= pontos_maximos[j].largura && 
-						c.mesas[i].comprimento <= pontos_maximos[j].comprimento) ||
-						(c.mesas[i].comprimento <= pontos_maximos[j].largura && 
-						c.mesas[i].largura <= pontos_maximos[j].comprimento))
-					{
-						aux_2 = pontos_maximos[j].area - c.mesas[i].area;
-						if(aux > aux_2 && aux_2 >= 0)
-						{
-							aux = aux_2;
-							index_aux_single = i;
-						}
-						else if(aux_2 == aux)
-						{
-							if(c.mesas[i].area > c.mesas[index_aux_single].area)
-							{
-								aux = aux_2;
-								index_aux_single = i;	
-							}
-							else if(c.mesas[i].area == c.mesas[index_aux_single].area)
-							{
-
-								if(c.mesas[i].largura > c.mesas[index_aux_single].largura)
-								{
-									aux = aux_2;
-									index_aux_single = i;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	leitura_montagem_casa(&c);
 	
-	cout << c.mesas[index_aux_single].comprimento << " " << c.mesas[index_aux_single].largura << "\n";
 	return 0;
 }
