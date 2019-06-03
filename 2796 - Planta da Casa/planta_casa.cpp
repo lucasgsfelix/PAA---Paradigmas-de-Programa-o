@@ -138,42 +138,39 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
 void seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo)
 {
 	int aux = (c->largura_casa * c->comprimento_casa);
-	int i=0, j=0, aux_2, index_aux_single = 0;
+	int aux_2, index_aux_single = 0, k=0;
 	
-	for(i=0;i<c->mesas.size();i++)
+	for(auto i=c->mesas.begin();i<c->mesas.end();i++)
 	{
-		for(j=0;j<pontos_maximos->size();j++)
+		for(auto j=pontos_maximos->begin();j<pontos_maximos->end();j++)
 		{
-			if(c->mesas[i].area <= pontos_maximos->at(j).area)
+			if((*i).area <= (*j).area)
 			{ // obdece a restrição de área
-				if((c->mesas[i].largura <= pontos_maximos->at(j).largura && 
-					c->mesas[i].comprimento <= pontos_maximos->at(j).comprimento) ||
-					(c->mesas[i].comprimento <= pontos_maximos->at(j).largura && 
-					c->mesas[i].largura <= pontos_maximos->at(j).comprimento)) // aqui por causa dos 90º
+				if(((*i).largura <= (*j).largura && 
+					(*i).comprimento <= (*j).comprimento) ||
+					((*i).comprimento <= (*j).largura && 
+					(*i).largura <= (*j).comprimento)) // aqui por causa dos 90º
 				{
-					aux_2 = pontos_maximos->at(j).area - c->mesas[i].area;
+					aux_2 = (*j).area - (*i).area;
 					if(aux > aux_2)
 					{
 						aux = aux_2;
-						index_aux_single = i;
+						index_aux_single = k;
 					}
 					else if(aux_2 == aux)
 					{
-						if(c->mesas[i].area > c->mesas[index_aux_single].area)
+						if (((*i).area > c->mesas[index_aux_single].area) || 
+							((*i).largura > c->mesas[index_aux_single].largura &&
+							(*i).area == c->mesas[index_aux_single].area))
 						{
 							aux = aux_2;
-							index_aux_single = i;	
-						}
-						else if(c->mesas[i].largura > c->mesas[index_aux_single].largura &&
-							c->mesas[i].area == c->mesas[index_aux_single].area)
-						{
-							aux = aux_2;
-							index_aux_single = i;
+							index_aux_single = k;	
 						}
 					}
 				}
 			}
 		}
+		k++;
 	}
 	cout << c->mesas[index_aux_single].comprimento << " " << c->mesas[index_aux_single].largura << "\n";
 }
@@ -220,14 +217,15 @@ void leitura_montagem_casa(casa *c)
 		free(c->m[i]);
 	}
 	free(c->m);
-	
 	cin >> c->quant_mesas; // aqui estou lendo o número total de mesas
+	//c->mesas.resize(c->quant_mesas);
 	mesa m; // struct mesa temporario
+	int lower = (area_retangulo*0.9);
 	for(i=0;i<c->quant_mesas;i++)
 	{
 		cin >> m.comprimento >> m.largura;
 		m.area = m.comprimento * m.largura;
-		if(m.area <= area_retangulo)
+		if(m.area <= area_retangulo && verifica_existencia(&c->mesas, &m.comprimento, &m.largura) == 0)
 		{
 			c->mesas.push_back(m);
 		}
