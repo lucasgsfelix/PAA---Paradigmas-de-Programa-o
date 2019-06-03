@@ -3,20 +3,15 @@
 using namespace std;
 
 
-class mesa
+struct mesa
 {
 	/*
 		Classe responsável armazenar todas as mesas 
 		que podem ser compradas por Isabel.
 	*/
-	public:
-		int comprimento = 0;
-		int largura = 0;
-		int area;
-		/*
-			Essa terá que ter duas versões uma normal
-			e outra que roda 90º
-		*/
+	int comprimento = 0;
+	int largura = 0;
+	int area;
 };
 class casa
 {
@@ -139,11 +134,6 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
 		}
 		area_maxima = max(area_maxima, max_area_histograma(c, i, pontos_maximos));
 	}
-	for(i=0;i<c->comprimento_casa;i++) // liberando espaço de memória
-	{
-		free(c->m[i]);
-	}
-	free(c->m);
 	return area_maxima;
 }
 void seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo)
@@ -197,7 +187,6 @@ void leitura_montagem_casa(casa *c)
 		As mesas em um vetor
 		Os outros dados serão armazenados em tipos primitivos
 	*/
-
 	ios_base::sync_with_stdio(false); // Toggle off synchronization of all the C++ standard streams
     cin.tie(NULL);                    // Disable the flushing of std::cout before std::cin accepts an input
 	int i = 0, j = 0, k = 0;
@@ -208,53 +197,42 @@ void leitura_montagem_casa(casa *c)
 		Alocando a matriz que será a casa
 	*/
 	alocar_matriz(c);
-	while(i < c->largura_casa * c->comprimento_casa)
-	{
-		/*
-			Esta etapa monta o mapa da casa
 
-		*/
-		cin >> valor_aux;
-		if(valor_aux == '#')
+	for(i=0;i<c->comprimento_casa;i++)
+	{
+		for(j=0;j<c->largura_casa;j++)
 		{
-			c->m[k][j] = 0;
-		}
-		else if(valor_aux=='.')
-		{
-			c->m[k][j] =1;
-		}
-		i++;
-		j++;
-		if(j == c->largura_casa)
-		{
-			j = 0;
-			k++;
+			cin >> valor_aux;
+			if(valor_aux == '#')
+			{
+				c->m[i][j] = 0;
+			}
+			else
+			{
+				c->m[i][j] = 1;
+			}
 		}
 	}
-	
 	vector <mesa> pontos_maximos;
 	int area_retangulo = calcula_subareas_contiguas(c, &pontos_maximos);
-	cin >> c->quant_mesas; // aqui estou lendo o número total de mesas
-	mesa m; // objeto mesa temporario
-	vector <int> buffer;
-	buffer.resize(c->quant_mesas*2); // largura e comprimento de ccada mesa
-	i=0;
-	while(cin >> buffer[i])
+	
+	for(i=0;i<c->comprimento_casa;i++) // liberando espaço de memória
 	{
-		i++;
+		free(c->m[i]);
 	}
-	for(i=0;i<buffer.size();i++)
+	free(c->m);
+	
+	cin >> c->quant_mesas; // aqui estou lendo o número total de mesas
+	mesa m; // struct mesa temporario
+	for(i=0;i<c->quant_mesas;i++)
 	{
-		m.comprimento = buffer[i];
-		m.largura = buffer[i+1];
-		i++;
+		cin >> m.comprimento >> m.largura;
 		m.area = m.comprimento * m.largura;
 		if(m.area <= area_retangulo)
 		{
 			c->mesas.push_back(m);
 		}
 	}
-	buffer.clear();
 	seleciona_melhor(c, &pontos_maximos, area_retangulo);
 	
 }
