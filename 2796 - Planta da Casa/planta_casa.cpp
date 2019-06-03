@@ -44,13 +44,13 @@ void alocar_matriz(casa *c)
 	}
 
 }
-int verifica_existencia(vector <mesa> *pontos_maximos, int comprimento, int largura)
+int verifica_existencia(vector <mesa> *pontos_maximos, int *comprimento, int *largura)
 {
 	// 1 se existe , 0 se não existe
 
-	for(int i=0;i<pontos_maximos->size();i++)
+	for(auto i=pontos_maximos->begin();i<pontos_maximos->end();i++)
 	{
-		if(pontos_maximos->at(i).comprimento == comprimento && pontos_maximos->at(i).largura == largura)
+		if((*i).comprimento == *comprimento && (*i).largura == *largura)
 		{
 			return 1;
 		}
@@ -98,7 +98,7 @@ int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos)
 				{
 					m_aux.largura = i;
 				}
-				if(verifica_existencia(pontos_maximos, m_aux.comprimento, m_aux.largura) == 0)
+				if(verifica_existencia(pontos_maximos, &m_aux.comprimento, &m_aux.largura) == 0)
 				{
 					m_aux.area = m_aux.largura * m_aux.comprimento;
 					pontos_maximos->push_back(m_aux);	
@@ -130,7 +130,6 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
 			{
 				c->m[i][j] += c->m[i-1][j];
 			}
-			
 		}
 		area_maxima = max(area_maxima, max_area_histograma(c, i, pontos_maximos));
 	}
