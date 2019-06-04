@@ -117,21 +117,15 @@ void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, joga
 	{
 		//cout << tabuleiro[0][0] << " " << tabuleiro[0][1] << "\n"; 
 		//cout << tabuleiro[1][0] << " " << tabuleiro[1][1] << "\n";
-		for(int i=0;i<d;i++)
-		{
-			for(int j=0;j<d;j++)
-			{
-				cout << tabuleiro[i][j];
-			}
-			cout << "\n";
-		}
-		cout << "Aqui: "<< j->pontuacao_preto << " " << j->pontuacao_branco << "\n";
+		cout << "Aqui: "<< j->pontuacao_preto + j->pretas.size() << " " 
+		<< j->pontuacao_branco + j->brancas.size() << "\n";
 		exit(1);
 
 	}
 	else
 	{
 		int i, k, l, soma_pretos=0, soma_brancos=0;
+		int flag;
 		for(i=0;i<c_list->size();i++)
 		{
 			if(c_list->at(i).x_final < d && c_list->at(i).y_final < d)
@@ -142,8 +136,19 @@ void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, joga
 				{
 					for(l=c_list->at(i).y_inicial;l<=c_list->at(i).y_final;l++)
 					{
-						if(tabuleiro[k][l] == 0 or tabuleiro[k][l] == -1)
+						if(tabuleiro[k][l] == 0)
 							continue;
+						else if(tabuleiro[k][l] == -1)
+						{
+							flag = 1;
+							continue;
+						}
+							
+
+						if(soma_brancos > 1 && soma_pretos > 1)
+						{
+							break;
+						}
 
 						if(tabuleiro[k][l] == 1) // pretos
 						{
@@ -153,26 +158,23 @@ void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, joga
 						{
 							soma_brancos++;
 						}
-						if(soma_brancos > 1 && soma_pretos > 1)
-						{
-							break;
-						}
 					}
 				}
 				if(soma_pretos == 0 && soma_brancos == 0)
 				{
 					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 0;
 				}
-				else if(soma_pretos > 0 && soma_brancos > 0)
+				else if((flag==1)||(soma_pretos > 0 && soma_brancos > 0))
 				{
 					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = -1;
+					flag = 0;
 				}
-				else if(soma_pretos > 0 && soma_brancos == 0)
+				else if(soma_pretos > 0)
 				{
 					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 1;
 					j->pontuacao_preto = j->pontuacao_preto + 1;
 				}
-				else if(soma_brancos > 0 && soma_pretos == 0)
+				else if(soma_brancos > 0)
 				{
 					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 2;
 					j->pontuacao_branco = j->pontuacao_branco + 1;
@@ -180,7 +182,7 @@ void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, joga
 			}
 		}
 	}
-	for(int i=0;i<d-1;i++)
+	/*for(int i=0;i<d-1;i++)
 	{
 		for(int j=0;j<d-1;j++)
 		{
@@ -188,7 +190,7 @@ void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, joga
 		}
 		cout << "\n";
 	}
-	exit(1);
+	cout << "=========\n";*/
 	//cout << j->pontuacao_branco  << " " << j->pontuacao_preto << "\n";
 	for(int i=0;i<d;i++) // liberando espaço de memória
 	{
