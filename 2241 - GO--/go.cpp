@@ -110,34 +110,34 @@ void calcula_pontos_dim_2(vector <coordenadas> *c_list, jogadores *j)
 		}
 	}
 }
-void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, jogadores *j)
+int calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, jogadores *j)
 {
 	int **m_aux = alocar_matriz(d-1, d-1);
 	if(d == 2)
 	{
-		//cout << tabuleiro[0][0] << " " << tabuleiro[0][1] << "\n"; 
-		//cout << tabuleiro[1][0] << " " << tabuleiro[1][1] << "\n";
-		cout << "Aqui: "<< j->pontuacao_preto + j->pretas.size() << " " 
+		cout << j->pontuacao_preto + j->pretas.size() << " " 
 		<< j->pontuacao_branco + j->brancas.size() << "\n";
-		exit(1);
+		return 0;
 
 	}
 	else
 	{
 		int i, k, l, soma_pretos=0, soma_brancos=0;
-		int flag;
+		int flag, flag_soma=0;
 		for(i=0;i<c_list->size();i++)
 		{
 			if(c_list->at(i).x_final < d && c_list->at(i).y_final < d)
 			{
 				soma_pretos = 0;
 				soma_brancos = 0;
+				flag_soma = 0;
 				for(k=c_list->at(i).x_inicial;k<=c_list->at(i).x_final;k++)
 				{
 					for(l=c_list->at(i).y_inicial;l<=c_list->at(i).y_final;l++)
 					{
 						if(tabuleiro[k][l] == 0)
 							continue;
+						
 						else if(tabuleiro[k][l] == -1)
 						{
 							flag = 1;
@@ -157,6 +157,10 @@ void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, joga
 						else if(tabuleiro[k][l] == 2) // brancos
 						{
 							soma_brancos++;
+						}
+						if(flag_soma == 1 or flag == 1)
+						{
+							break;
 						}
 					}
 				}
@@ -182,22 +186,14 @@ void calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, joga
 			}
 		}
 	}
-	/*for(int i=0;i<d-1;i++)
-	{
-		for(int j=0;j<d-1;j++)
-		{
-			cout << m_aux[i][j];
-		}
-		cout << "\n";
-	}
-	cout << "=========\n";*/
-	//cout << j->pontuacao_branco  << " " << j->pontuacao_preto << "\n";
 	for(int i=0;i<d;i++) // liberando espaço de memória
 	{
 		free(tabuleiro[i]);
 	}
 	free(tabuleiro);
 	calcula_matrizes(c_list, d-1, m_aux, j);
+
+	return 0;
 
 }
 void somando_dimensoes(jogadores *j)
@@ -219,14 +215,6 @@ int main()
 	jogadores j;
 	leitura_montagem_dados(&j); // também monta o tabuleiro
 	somando_dimensoes(&j);
-	/*if (j.pontuacao_preto == 0 && j.pontuacao_branco == 0)
-	{
-		cout << j.pretas.size() << " " << j.brancas.size() << "\n";
-	}
-	else
-	{
-		cout << j.pontuacao_preto << " " << j.pontuacao_branco << "\n";
-	}*/
 	
 	return 0;
 }
