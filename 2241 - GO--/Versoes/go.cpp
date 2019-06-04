@@ -87,36 +87,38 @@ void leitura_montagem_dados(jogadores *j)
 		j->brancas.push_back(p);
 	}
 }
-void calcula_pontos_dim_2(vector <coordenadas> *c_list, int d)
+void calcula_pontos_dim_2(vector <coordenadas> *c_list, jogadores *j)
 {
-	int aux_linha = 1, aux_coluna=1, j;
+	int k, l;
 	coordenadas c;
-	for(int i=0;i<d;i++) // calculando pontos de dimensão 2
+	for(int i=0;i<j->dimensao_tab-1;i++) // calculando pontos de dimensão 2
 	{
-		for(j=0;j<d;j++)
+		for(k=0;k<j->dimensao_tab;k++)
 		{
-			c.x_inicial = j;
-			c.x_final = j+aux_coluna;
-			c.y_inicial = i;
-			c.y_final = i+aux_linha;
-
-			if((c.y_final - c.y_inicial == 1 &&
-				c.x_final - c.x_inicial ==  1))
+			for(l=0;l<j->dimensao_tab;l++)
 			{
-				c_list->push_back(c); // adicionando na lista de coordenadas
+				c.y_inicial = k;
+				c.y_final = i+k;
+				c.x_inicial = l;
+				c.x_final = i+l;
+				if((c.y_final - c.y_inicial == 1 &&
+					c.x_final - c.x_inicial ==  1))
+				{
+					c_list->push_back(c); // adicionando na lista de coordenadas
+				}
 			}
 		}
 	}
-	cout << c_list->size() << "\n";
 }
-int calcula_matrizes(vector <coordenadas> *c_list, int d, jogadores *j)
+int calcula_matrizes(vector <coordenadas> *c_list, int d, int **tabuleiro, jogadores *j)
 {
-	//int **m_aux = alocar_matriz(d-1, d-1);
+	int **m_aux = alocar_matriz(d-1, d-1);
 	if(d == 2)
 	{
 		cout << j->pontuacao_preto + j->pretas.size() << " " 
 		<< j->pontuacao_branco + j->brancas.size() << "\n";
 		return 0;
+
 	}
 	else
 	{
@@ -133,24 +135,26 @@ int calcula_matrizes(vector <coordenadas> *c_list, int d, jogadores *j)
 				{
 					for(l=c_list->at(i).y_inicial;l<=c_list->at(i).y_final;l++)
 					{
-						if(j->tabuleiro[k][l] == 0)
+						if(tabuleiro[k][l] == 0)
 							continue;
 						
-						else if(j->tabuleiro[k][l] == -1)
+						else if(tabuleiro[k][l] == -1)
 						{
 							flag = 1;
 							continue;
 						}
+							
+
 						if(soma_brancos > 1 && soma_pretos > 1)
 						{
 							break;
 						}
 
-						if(j->tabuleiro[k][l] == 1) // pretos
+						if(tabuleiro[k][l] == 1) // pretos
 						{
 							soma_pretos++;
 						}
-						else if(j->tabuleiro[k][l] == 2) // brancos
+						else if(tabuleiro[k][l] == 2) // brancos
 						{
 							soma_brancos++;
 						}
@@ -162,31 +166,32 @@ int calcula_matrizes(vector <coordenadas> *c_list, int d, jogadores *j)
 				}
 				if(soma_pretos == 0 && soma_brancos == 0)
 				{
-					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 0;
+					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 0;
 				}
 				else if((flag==1)||(soma_pretos > 0 && soma_brancos > 0))
 				{
-					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = -1;
+					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = -1;
 					flag = 0;
 				}
 				else if(soma_pretos > 0)
 				{
-					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 1;
+					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 1;
 					j->pontuacao_preto = j->pontuacao_preto + 1;
 				}
 				else if(soma_brancos > 0)
 				{
-					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 2;
+					m_aux[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 2;
 					j->pontuacao_branco = j->pontuacao_branco + 1;
 				}
 			}
-			else if(c_list->at(i).y_final >= d)
-			{
-				break;
-			}
 		}
 	}
-	calcula_matrizes(c_list, d-1, j);
+	for(int i=0;i<d;i++) // liberando espaço de memória
+	{
+		free(tabuleiro[i]);
+	}
+	free(tabuleiro);
+	calcula_matrizes(c_list, d-1, m_aux, j);
 
 	return 0;
 
@@ -201,8 +206,8 @@ void somando_dimensoes(jogadores *j)
 	*/
 	int k, l;
 	vector <coordenadas> c_list;
-	calcula_pontos_dim_2(&c_list, j->dimensao_tab);
-	calcula_matrizes(&c_list, j->dimensao_tab, j);
+	calcula_pontos_dim_2(&c_list, j);
+	calcula_matrizes(&c_list, j->dimensao_tab, j->tabuleiro, j);
 }
 
 int main()

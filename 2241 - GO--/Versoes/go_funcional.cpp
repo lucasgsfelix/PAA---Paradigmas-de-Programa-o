@@ -89,25 +89,29 @@ void leitura_montagem_dados(jogadores *j)
 }
 void calcula_pontos_dim_2(vector <coordenadas> *c_list, int d)
 {
-	int aux_linha = 1, aux_coluna=1, j;
+	int k, l;
 	coordenadas c;
-	for(int i=0;i<d;i++) // calculando pontos de dimensão 2
+	for(int i=0;i<d-1;i++) // calculando pontos de dimensão 2
 	{
-		for(j=0;j<d;j++)
+		for(k=0;k<d;k++)
 		{
-			c.x_inicial = j;
-			c.x_final = j+aux_coluna;
-			c.y_inicial = i;
-			c.y_final = i+aux_linha;
-
-			if((c.y_final - c.y_inicial == 1 &&
-				c.x_final - c.x_inicial ==  1))
+			for(l=0;l<d;l++)
 			{
-				c_list->push_back(c); // adicionando na lista de coordenadas
+				c.y_inicial = k;
+				c.y_final = i+k;
+				c.x_inicial = l;
+				c.x_final = i+l;
+				if((c.y_final - c.y_inicial == 1 &&
+					c.x_final - c.x_inicial ==  1))
+				{
+
+					//cout <<"Linhas: "<< c.x_inicial << " " << c.x_final << "\n";
+					//cout << "Colunas: "<< c.y_inicial << " " << c.y_final << "\n";
+					c_list->push_back(c); // adicionando na lista de coordenadas
+				}
 			}
 		}
 	}
-	cout << c_list->size() << "\n";
 }
 int calcula_matrizes(vector <coordenadas> *c_list, int d, jogadores *j)
 {
