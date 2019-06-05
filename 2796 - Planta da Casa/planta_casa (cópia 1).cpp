@@ -25,7 +25,7 @@ struct info_pontos
 	int l = 0; // maior largura
 	int a = 0; // maior area
 	int c = 0; // maior comprimento
-};
+}
 class casa
 {
 	/*
@@ -88,7 +88,7 @@ int verifica_existencia(vector <mesa> *pontos_maximos, int *comprimento, int *la
 
 	return 0;
 }*/
-int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos, info_pontos *p)
+int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos, info_pontos p)
 {
 	/*
 		Calcula a área máxima do histograma, esta área irá representar
@@ -133,19 +133,8 @@ int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos, info_pont
 					pontos_maximos->push_back(m_aux);
 					if(m_aux.area > p->a)
 					{
-						p->a = m_aux.area;
-						p->ia = pontos_maximos->size()-1;
-					}
-					if(m_aux.comprimento > p->c)
-					{
-						p->c = m_aux.comprimento;
-						p->ic = pontos_maximos->size()-1;
-					}
-					if(m_aux.largura > p->l)
-					{
-						p->l = m_aux.largura;
-						p->il = pontos_maximos->size()-1;
-					}
+						
+					}	
 				}
 			}
 		}
@@ -259,28 +248,54 @@ void monta_quarto_mesas(vector <mesa> *pontos_maximos, casa *c)
 	}*/
 
 }
-void verifica_mesas_quarto(vector <mesa> *pontos_maximos, casa *c, info_pontos *p)
+void verifica_mesas_quarto(vector <mesa> *pontos_maximos, casa *c)
 {
 	int max_ponto=0, max_largura=0, max_comprimento=0;
-	vector <int> index_best{p->ia, p->il, p->ic};
-	int aux_area = 0;
-	int k=0, l=0, a=0, j, max_local, pi;
-	for(int i=0;i<index_best.size();i++)
+	int ip = 0, il = 0, ic = 0, i=0;
+
+	/*for(i=0;i<pontos_maximos->size();i++)
 	{
-		pi = index_best[i];
+		if(pontos_maximos->at(i).area > max_ponto)
+		{
+			max_ponto = pontos_maximos->at(i).area;
+			ip = i;
+		}
+
+
+		if(pontos_maximos->at(i).largura > max_largura)
+		{
+			max_largura = pontos_maximos->at(i).largura; 
+			il = i;
+		}
+
+		if(pontos_maximos->at(i).comprimento > max_comprimento)
+		{
+			max_comprimento = pontos_maximos->at(i).comprimento;
+			ic = i;
+		}
+	}*/
+	
+	vector <int> index_best{ip, il, ic};
+	int aux_area = 0;
+	int k=0, l=0, a=0; //index best, largura best, area best;
+	int j, p, max_local;
+	
+	for(i=0;i<index_best.size();i++)
+	{
+		p = index_best[i];
 		max_local = 0;
 		for(j=0;j<c->mesas.size();j++)
 		{
 			if(c->mesas[j].area >= max_local && 
-			pontos_maximos->at(pi).area >= c->mesas[j].area)
+			pontos_maximos->at(p).area >= c->mesas[j].area)
 			{
 				max_local = c->mesas[j].area;
 				if(max_local >= a)
 				{
-					if((c->mesas[j].comprimento <= pontos_maximos->at(pi).largura && 
-					c->mesas[j].largura <= pontos_maximos->at(pi).comprimento)||
-					(c->mesas[j].largura <= pontos_maximos->at(pi).largura && 
-					c->mesas[j].comprimento <= pontos_maximos->at(pi).comprimento))
+					if((c->mesas[j].largura <= pontos_maximos->at(p).largura && 
+					c->mesas[j].comprimento <= pontos_maximos->at(p).comprimento)||
+					(c->mesas[j].comprimento <= pontos_maximos->at(p).largura && 
+					c->mesas[j].largura <= pontos_maximos->at(p).comprimento))
 					{
 						if((max_local>a)||
 							(max_local == a && c->mesas[j].largura > l))
@@ -335,7 +350,6 @@ void leitura_montagem_casa(casa *c)
 	}
 	vector <mesa> pontos_maximos;
 	info_pontos p;
-	
 	int area_retangulo = calcula_subareas_contiguas(c, &pontos_maximos, &p);
 	
 	for(i=0;i<c->comprimento_casa;i++) // liberando espaço de memória
@@ -349,16 +363,13 @@ void leitura_montagem_casa(casa *c)
 	{
 		cin >> m.comprimento >> m.largura;
 		m.area = m.comprimento * m.largura;
-		if(m.area <= area_retangulo && ((m.comprimento <= p.c && m.largura <= p.l)
-			|| (m.comprimento <= p.l && m.largura <= p.c)))
+		if(m.area <= area_retangulo)
 		{
 			c->mesas.push_back(m);
 		}
 	}
 	//monta_quarto_mesas(&pontos_maximos, c);
-	
-	verifica_mesas_quarto(&pontos_maximos, c, &p);
-	
+	verifica_mesas_quarto(&pontos_maximos, c);
 	//seleciona_melhor(c, &pontos_maximos, area_retangulo);
 }
 int main()
