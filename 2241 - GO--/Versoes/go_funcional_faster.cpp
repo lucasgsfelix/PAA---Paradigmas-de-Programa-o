@@ -87,83 +87,108 @@ void leitura_montagem_dados(jogadores *j)
 		j->brancas.push_back(p);
 	}
 }
-int verifica_tabuleiro(jogadores *j, int k, int l, int *cp, int *cb)
+void calcula_pontos_dim_2(vector <coordenadas> *c_list, int d)
 {
-	if(j->tabuleiro[k][l] == 0)
-		return 0;
-	
-	else if(j->tabuleiro[k][l] == -1)
-	{
-		return -1;
-	}
-
-	if(j->tabuleiro[k][l] == 1) // pretos
-	{
-		*cp = *cp+1;
-		return 1;
-	}
-	else if(j->tabuleiro[k][l] == 2) // brancos
-	{
-		*cb = *cb+1;
-		return 1;
-	}
-	return 0;
-}
-int calcula_tudo(int d, jogadores *j)
-{
-	int k, cp = 0, cb = 0, flag_neg = 0;
-	int r1, r2, r3, r4;
+	int aux_linha = 1, aux_coluna=1, j;
 	coordenadas c;
+	for(int i=0;i<d;i++) // calculando pontos de dimensão 2
+	{
+		for(j=0;j<d;j++)
+		{
+			c.x_inicial = j;
+			c.x_final = j+aux_coluna;
+			c.y_inicial = i;
+			c.y_final = i+aux_linha;
+
+			if((c.y_final - c.y_inicial == 1 &&
+				c.x_final - c.x_inicial ==  1))
+			{
+				c_list->push_back(c); // adicionando na lista de coordenadas
+			}
+		}
+	}
+}
+int calcula_matrizes(vector <coordenadas> *c_list, int d, jogadores *j)
+{
+	//int **m_aux = alocar_matriz(d-1, d-1);
 	if(d == 2)
 	{
 		cout << j->pontuacao_preto + j->pretas.size() << " " 
 		<< j->pontuacao_branco + j->brancas.size() << "\n";
 		return 0;
 	}
-	for(int i=0;i<d-1;i++) // calculando pontos de dimensão 2
+	else
 	{
-		cp = 0;
-		cb = 0;
-		for(k=0;k<d-1;k++)
+		int i, k, l, soma_pretos=0, soma_brancos=0;
+		int flag, flag_soma=0;
+		for(i=0;i<c_list->size();i++)
 		{
-			c.x_inicial = k; // x controla linhas
-			c.x_final = k+1;
-			c.y_inicial = i; // y colunas
-			c.y_final = i+1;
-			r1 = verifica_tabuleiro(j, c.y_inicial, c.x_inicial, &cp, &cb);//linha 0, coluna 0
-			r2 = verifica_tabuleiro(j, c.y_final, c.x_inicial, &cp, &cb);
-			r3 = verifica_tabuleiro(j, c.y_inicial, c.x_final, &cp, &cb);
-			r4 = verifica_tabuleiro(j, c.y_final, c.x_final, &cp, &cb);
-			if(r1 == -1 or r2 == -1 or r3 == -1 or r4 == -1)
+			if(c_list->at(i).x_final < d && c_list->at(i).y_final < d)
 			{
-				flag_neg = 1;
+				soma_pretos = 0;
+				soma_brancos = 0;
+				flag_soma = 0;
+				for(k=c_list->at(i).x_inicial;k<=c_list->at(i).x_final;k++)
+				{
+					for(l=c_list->at(i).y_inicial;l<=c_list->at(i).y_final;l++)
+					{
+						if(j->tabuleiro[k][l] == 0)
+							continue;
+						
+						else if(j->tabuleiro[k][l] == -1)
+						{
+							flag = 1;
+							continue;
+						}
+						if(soma_brancos > 1 && soma_pretos > 1)
+						{
+							break;
+						}
+
+						if(j->tabuleiro[k][l] == 1) // pretos
+						{
+							soma_pretos++;
+						}
+						else if(j->tabuleiro[k][l] == 2) // brancos
+						{
+							soma_brancos++;
+						}
+						if(flag_soma == 1 or flag == 1)
+						{
+							break;
+						}
+					}
+				}
+				if(soma_pretos == 0 && soma_brancos == 0)
+				{
+					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 0;
+				}
+				else if((flag==1)||(soma_pretos > 0 && soma_brancos > 0))
+				{
+					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = -1;
+					flag = 0;
+				}
+				else if(soma_pretos > 0)
+				{
+					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 1;
+					j->pontuacao_preto = j->pontuacao_preto + 1;
+				}
+				else if(soma_brancos > 0)
+				{
+					j->tabuleiro[c_list->at(i).x_inicial][c_list->at(i).y_inicial] = 2;
+					j->pontuacao_branco = j->pontuacao_branco + 1;
+				}
 			}
-			if(cp == 0 && cb == 0)
+			else if(c_list->at(i).y_final >= d)
 			{
-				j->tabuleiro[c.y_inicial][c.x_inicial] = 0;
+				break;
 			}
-			else if((flag_neg==1)||(cp > 0 && cb > 0))
-			{
-				j->tabuleiro[c.y_inicial][c.x_inicial] = -1;
-				flag_neg = 0;
-			}
-			else if(cp > 0)
-			{
-				j->tabuleiro[c.y_inicial][c.x_inicial] = 1;
-				j->pontuacao_preto = j->pontuacao_preto + 1;
-			}
-			else if(cb > 0)
-			{
-				j->tabuleiro[c.y_inicial][c.x_inicial] = 2;
-				j->pontuacao_branco = j->pontuacao_branco + 1;
-			}
-			cp = 0;
-			cb = 0;
-			//cout << r1 << " " << r2 << " " << r3 << " " << r4 << "\n";
 		}
 	}
-	calcula_tudo(d-1, j);
+	calcula_matrizes(c_list, d-1, j);
+
 	return 0;
+
 }
 void somando_dimensoes(jogadores *j)
 {
@@ -173,7 +198,10 @@ void somando_dimensoes(jogadores *j)
 		Para isso é utilizado um quadrado de dimensão N que varia e verifica
 		quais são as peças que há nas subáreas quadráticas. 
 	*/
-	calcula_tudo(j->dimensao_tab, j);
+	int k, l;
+	vector <coordenadas> c_list;
+	calcula_pontos_dim_2(&c_list, j->dimensao_tab);
+	calcula_matrizes(&c_list, j->dimensao_tab, j);
 }
 
 int main()
