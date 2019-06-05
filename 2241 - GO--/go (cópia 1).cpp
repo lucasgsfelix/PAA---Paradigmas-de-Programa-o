@@ -22,6 +22,7 @@ class coordenadas
 		int x_final = 0;
 		int y_inicial = 0;
 		int y_final = 0;
+		int area = 0;
 };
 class jogadores
 {
@@ -88,20 +89,20 @@ void leitura_montagem_dados(jogadores *j)
 }
 int verifica_tabuleiro(jogadores *j, int k, int l, int *cp, int *cb)
 {
-	if(j->tabuleiro[k][l] == 0)
+	if(tabuleiro[k][l] == 0)
 		return 0;
 	
-	else if(j->tabuleiro[k][l] == -1)
+	else if(tabuleiro[k][l] == -1)
 	{
 		return -1;
 	}
 
-	if(j->tabuleiro[k][l] == 1) // pretos
+	if(tabuleiro[k][l] == 1) // pretos
 	{
 		*cp = *cp+1;
 		return 1;
 	}
-	else if(j->tabuleiro[k][l] == 2) // brancos
+	else if(tabuleiro[k][l] == 2) // brancos
 	{
 		*cb = *cb+1;
 		return 1;
@@ -113,6 +114,7 @@ int calcula_tudo(int d, jogadores *j)
 	int k, cp = 0, cb = 0, flag_neg = 0;
 	int r1, r2, r3, r4;
 	coordenadas c;
+	//int **m_aux = alocar_matriz(d-1, d-1);
 	if(d == 2)
 	{
 		cout << j->pontuacao_preto + j->pretas.size() << " " 
@@ -125,27 +127,26 @@ int calcula_tudo(int d, jogadores *j)
 		cb = 0;
 		for(k=0;k<d-1;k++)
 		{
-			flag_neg = 0;
 			c.x_inicial = k; // x controla linhas
 			c.x_final = k+1;
 			c.y_inicial = i; // y colunas
 			c.y_final = i+1;
-			r1 = verifica_tabuleiro(j, c.y_inicial, c.x_inicial, &cp, &cb);//linha 0, coluna 0
-			r2 = verifica_tabuleiro(j, c.y_final, c.x_inicial, &cp, &cb);
-			r3 = verifica_tabuleiro(j, c.y_inicial, c.x_final, &cp, &cb);
-			r4 = verifica_tabuleiro(j, c.y_final, c.x_final, &cp, &cb);
+			r1 = verifica_tabuleiro(j->tabuleiro, c.y_inicial, c.x_inicial, &cp, &cb);//linha 0, coluna 0
+			r2 = verifica_tabuleiro(j->tabuleiro, c.y_final, c.x_inicial, &cp, &cb);
+			r3 = verifica_tabuleiro(j->tabuleiro, c.y_inicial, c.x_final, &cp, &cb);
+			r4 = verifica_tabuleiro(j->tabuleiro, c.y_final, c.x_final, &cp, &cb);
 			if(r1 == -1 or r2 == -1 or r3 == -1 or r4 == -1)
 			{
 				flag_neg = 1;
 			}
-			if((flag_neg==1)||(cp > 0 && cb > 0))
+			if(cp == 0 && cb == 0)
+			{
+				j->tabuleiro[c.y_inicial][c.x_inicial] = 0;
+			}
+			else if((flag_neg==1)||(cp > 0 && cb > 0))
 			{
 				j->tabuleiro[c.y_inicial][c.x_inicial] = -1;
 				flag_neg = 0;
-			}
-			else if(cp == 0 && cb == 0)
-			{
-				j->tabuleiro[c.y_inicial][c.x_inicial] = 0;
 			}
 			else if(cp > 0)
 			{
