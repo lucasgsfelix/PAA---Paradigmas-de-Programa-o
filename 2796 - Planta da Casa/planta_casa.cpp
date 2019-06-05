@@ -78,8 +78,8 @@ int verifica_existencia(vector <mesa> *pontos_maximos, int *comprimento, int *la
 
 	for(auto i=c->mesas.begin();i<c->mesas.end();i++)
 	{
-		if(((*i).comprimento == *comprimento && (*i).largura == *largura)||
-			(*i).comprimento == *largura  && (*i).largura == *comprimento) //girando 90º
+		if((c->mesas[i].comprimento == *comprimento && c->mesas[i].largura == *largura)||
+			c->mesas[i].comprimento == *largura  && c->mesas[i].largura == *comprimento) //girando 90º
 		{
 			return 1;
 		}
@@ -165,7 +165,6 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos, info_pont
 	*/
 	int i, j, area_maxima = 0;
 	max_area_histograma(c, 0, pontos_maximos, p);
-	int area_maxima_antiga;
 	for(i=1;i<c->comprimento_casa;i++)
 	{
 		for(j=0;j<c->largura_casa;j++)
@@ -179,44 +178,29 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos, info_pont
 	}
 	return area_maxima;
 }
-void seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo)
+void seleciona_melhor(casa *c, vector <mesa> *pm, int area_retangulo)
 {
-	int aux = (c->largura_casa * c->comprimento_casa);
-	int aux_2, index_aux_single = 0, k=0;
-	
-	for(auto i=c->mesas.begin();i<c->mesas.end();i++)
+	int i, j;
+	int a = 0, l = 0, index = 0;
+	for(i=0;i<c->mesas.size();i++)
 	{
-		for(auto j=pontos_maximos->begin();j<pontos_maximos->end();j++)
+		for(j=0;j<pm->size();j++)
 		{
-			if((*i).area <= (*j).area)
-			{ // obdece a restrição de área
-				if(((*i).largura <= (*j).largura && 
-					(*i).comprimento <= (*j).comprimento) ||
-					((*i).comprimento <= (*j).largura && 
-					(*i).largura <= (*j).comprimento)) // aqui por causa dos 90º
+			if((c->mesas[i].largura <= pm->at(j).largura && 
+				c->mesas[i].comprimento <= pm->at(j).comprimento) ||
+				(c->mesas[i].comprimento <= pm->at(j).largura && 
+				c->mesas[i].largura <= pm->at(j).comprimento)) // aqui por causa dos 90º
+			{
+				if(c->mesas[i].area > a || (c->mesas[i].area == a && c->mesas[i].largura > l))
 				{
-					aux_2 = (*j).area - (*i).area;
-					if(aux > aux_2)
-					{
-						aux = aux_2;
-						index_aux_single = k;
-					}
-					else if(aux_2 == aux)
-					{
-						if (((*i).area > c->mesas[index_aux_single].area) || 
-							((*i).largura > c->mesas[index_aux_single].largura &&
-							(*i).area == c->mesas[index_aux_single].area))
-						{
-							aux = aux_2;
-							index_aux_single = k;	
-						}
-					}
+					a = c->mesas[i].area;
+					index = i;
+					l = c->mesas[i].largura;
 				}
 			}
 		}
-		k++;
 	}
-	cout << c->mesas[index_aux_single].comprimento << " " << c->mesas[index_aux_single].largura << "\n";
+	cout << c->mesas[index].comprimento << " " << c->mesas[index].largura << "\n";
 }
 void monta_quarto_mesas(vector <mesa> *pontos_maximos, casa *c)
 {
@@ -271,19 +255,22 @@ void verifica_mesas_quarto(vector <mesa> *pontos_maximos, casa *c, info_pontos *
 		max_local = 0;
 		for(j=0;j<c->mesas.size();j++)
 		{
+			max_local = c->mesas[j].area;
 			if(c->mesas[j].area >= max_local && 
 			pontos_maximos->at(pi).area >= c->mesas[j].area)
 			{
-				max_local = c->mesas[j].area;
+				cout << max_local <<" "<< a << "\n";
 				if(max_local >= a)
 				{
+					cout << "Aqui: "<< max_local <<" "<< a << "\n";
+					cout << c->mesas[j].comprimento << " " << c->mesas[j].largura << "\n";
+					cout << pontos_maximos->at(pi).comprimento << " " << pontos_maximos->at(pi).largura << "\n";
 					if((c->mesas[j].comprimento <= pontos_maximos->at(pi).largura && 
 					c->mesas[j].largura <= pontos_maximos->at(pi).comprimento)||
 					(c->mesas[j].largura <= pontos_maximos->at(pi).largura && 
 					c->mesas[j].comprimento <= pontos_maximos->at(pi).comprimento))
 					{
-						if((max_local>a)||
-							(max_local == a && c->mesas[j].largura > l))
+						if((max_local>a)||(max_local == a && c->mesas[j].largura > l))
 						{
 							a = max_local;
 							k = j;
@@ -349,17 +336,15 @@ void leitura_montagem_casa(casa *c)
 	{
 		cin >> m.comprimento >> m.largura;
 		m.area = m.comprimento * m.largura;
-		if(m.area <= area_retangulo && ((m.comprimento <= p.c && m.largura <= p.l)
-			|| (m.comprimento <= p.l && m.largura <= p.c)))
+		if(m.area <= area_retangulo && ((m.comprimento <= p.c && m.largura <= p.l) || (m.largura <= p.c && m.comprimento <= p.l)))
 		{
 			c->mesas.push_back(m);
 		}
 	}
 	//monta_quarto_mesas(&pontos_maximos, c);
+	//verifica_mesas_quarto(&pontos_maximos, c, &p);
 	
-	verifica_mesas_quarto(&pontos_maximos, c, &p);
-	
-	//seleciona_melhor(c, &pontos_maximos, area_retangulo);
+	seleciona_melhor(c, &pontos_maximos, area_retangulo);
 }
 int main()
 {
