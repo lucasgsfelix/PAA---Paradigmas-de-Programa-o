@@ -1,12 +1,12 @@
 from random import randint
-N = 1000 #linhas
-M = 1000 #colunas
-NUM_MESAS = 1000000
+N = 80 #linhas
+M =  80#colunas
+NUM_MESAS = 100
 
 def gerar_mesa():
     global N
     global M
-    return "{} {}\n".format(randint(1,N/2),randint(1,M/2))
+    return "{} {}\n".format(randint(1,(N/2)),randint(1,(N/2)))
 def gerar_ponto():
     ocupado = '#'
     vazio = '.'
@@ -30,7 +30,6 @@ for testes in range(0, 100):
     for i in range(NUM_MESAS):
         arquivo += gerar_mesa() 
 
-    text_file = open("Entradas/gerada_gigante_"+str(testes), "w")
+    text_file = open("Entradas/gerada"+str(testes), "w")
     text_file.write("{}".format(arquivo))
     text_file.close()
-    break

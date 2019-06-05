@@ -1,5 +1,5 @@
-#include <bits/stdc++.h> 
-
+#include <iostream>
+#include <vector>
 using namespace std;
 
 
@@ -12,6 +12,7 @@ struct mesa
 	int comprimento = 0;
 	int largura = 0;
 	int area;
+	//vector <int> mesas; // irá guardar o index das mesas que cabem
 };
 class casa
 {
@@ -59,6 +60,22 @@ int verifica_existencia(vector <mesa> *pontos_maximos, int *comprimento, int *la
 
 	return 0;
 }
+/*int verifica_existencia_mesa(casa *c, int *comprimento, int *largura)
+{
+	// 1 se existe , 0 se não existe
+
+	for(auto i=c->mesas.begin();i<c->mesas.end();i++)
+	{
+		if(((*i).comprimento == *comprimento && (*i).largura == *largura)||
+			(*i).comprimento == *largura  && (*i).largura == *comprimento) //girando 90º
+		{
+			return 1;
+		}
+	}
+
+
+	return 0;
+}*/
 int max_area_histograma(casa *c, int k, vector <mesa> *pontos_maximos)
 {
 	/*
@@ -174,6 +191,115 @@ void seleciona_melhor(casa *c, vector <mesa> *pontos_maximos, int area_retangulo
 	}
 	cout << c->mesas[index_aux_single].comprimento << " " << c->mesas[index_aux_single].largura << "\n";
 }
+void monta_quarto_mesas(vector <mesa> *pontos_maximos, casa *c)
+{
+	int i, j, max_local = 0, max_area=0, index=0, largura_max=0;
+	for(i=0;i<pontos_maximos->size();i++)
+	{
+		max_local = 0;
+		for(j=0;j<c->mesas.size();j++)
+		{
+			if(c->mesas[j].area >= max_local && pontos_maximos->at(i).area >= c->mesas[j].area)
+			{
+				max_local = c->mesas[j].area;
+				if(max_local >= max_area)
+				{
+					if((c->mesas[j].largura <= pontos_maximos->at(i).largura && 
+					c->mesas[j].comprimento <= pontos_maximos->at(i).comprimento)||
+					(c->mesas[j].comprimento <= pontos_maximos->at(i).largura && 
+					c->mesas[j].largura <= pontos_maximos->at(i).comprimento))
+					{
+						if((max_local>max_area)||
+							(max_local == max_area && c->mesas[j].largura > largura_max))
+						{
+							max_area = max_local;
+							index = j;
+							largura_max = c->mesas[j].largura;
+						}
+					}	
+				}
+			}
+		}
+	}
+
+	cout << c->mesas[index].comprimento << " " << c->mesas[index].largura << "\n";
+	/*for(i=0;i<pontos_maximos->size();i++)
+	{
+		for(j=0;j<pontos_maximos->at(i).mesas.size();j++)
+		{
+			if()
+		}
+	}*/
+
+}
+void verifica_mesas_quarto(vector <mesa> *pontos_maximos, casa *c)
+{
+	int max_ponto=0, max_largura=0, max_comprimento=0;
+	int ip = 0, il = 0, ic = 0, i=0;
+
+	for(i=0;i<pontos_maximos->size();i++)
+	{
+		if(pontos_maximos->at(i).area > max_ponto)
+		{
+			max_ponto = pontos_maximos->at(i).area;
+			ip = i;
+		}
+
+
+		if(pontos_maximos->at(i).largura > max_largura)
+		{
+			max_largura = pontos_maximos->at(i).largura; 
+			il = i;
+		}
+
+		if(pontos_maximos->at(i).comprimento > max_comprimento)
+		{
+			max_comprimento = pontos_maximos->at(i).comprimento;
+			ic = i;
+		}
+	}
+	vector <int> index_best{ip, il, ic};
+	int aux_area = 0;
+	int k=0, l=0, a=0; //index best, largura best, area best;
+	int j, p, max_local;
+	for(auto i=c->mesas.begin();i<c->mesas.end();i++)
+	{
+		if((*i).largura > max_largura || (*i).comprimento > max_comprimento)
+		{
+			c->mesas.erase(i);
+		}
+	}
+	for(i=0;i<index_best.size();i++)
+	{
+		p = index_best[i];
+		max_local = 0;
+		for(j=0;j<c->mesas.size();j++)
+		{
+			if(c->mesas[j].area >= max_local && 
+			pontos_maximos->at(p).area >= c->mesas[j].area)
+			{
+				max_local = c->mesas[j].area;
+				if(max_local >= a)
+				{
+					if((c->mesas[j].largura <= pontos_maximos->at(p).largura && 
+					c->mesas[j].comprimento <= pontos_maximos->at(p).comprimento)||
+					(c->mesas[j].comprimento <= pontos_maximos->at(p).largura && 
+					c->mesas[j].largura <= pontos_maximos->at(p).comprimento))
+					{
+						if((max_local>a)||
+							(max_local == a && c->mesas[j].largura > l))
+						{
+							a = max_local;
+							k = j;
+							l = c->mesas[j].largura;
+						}
+					}	
+				}
+			}
+		}
+	}
+	cout << c->mesas[k].comprimento << " " << c->mesas[k].largura << "\n";
+}
 void leitura_montagem_casa(casa *c)
 {
 
@@ -183,10 +309,12 @@ void leitura_montagem_casa(casa *c)
 		As mesas em um vetor
 		Os outros dados serão armazenados em tipos primitivos
 	*/
-	ios_base::sync_with_stdio(false); // Toggle off synchronization of all the C++ standard streams
-    cin.tie(NULL);                    // Disable the flushing of std::cout before std::cin accepts an input
-	int i = 0, j = 0, k = 0;
+	ios_base::sync_with_stdio(false);
+    cin.tie(NULL);                   
+	
+	int i, j;
 	char valor_aux; // redeclarando valor
+	mesa m; // struct mesa temporario
 
 	cin >> c->comprimento_casa >> c->largura_casa; // lê o comprimento da casa
 	/*
@@ -217,21 +345,20 @@ void leitura_montagem_casa(casa *c)
 		free(c->m[i]);
 	}
 	free(c->m);
+	
 	cin >> c->quant_mesas; // aqui estou lendo o número total de mesas
-	//c->mesas.resize(c->quant_mesas);
-	mesa m; // struct mesa temporario
-	int lower = (area_retangulo*0.9);
 	for(i=0;i<c->quant_mesas;i++)
 	{
 		cin >> m.comprimento >> m.largura;
 		m.area = m.comprimento * m.largura;
-		if(m.area <= area_retangulo && verifica_existencia(&c->mesas, &m.comprimento, &m.largura) == 0)
+		if(m.area <= area_retangulo)
 		{
 			c->mesas.push_back(m);
 		}
 	}
-	seleciona_melhor(c, &pontos_maximos, area_retangulo);
-	
+	//monta_quarto_mesas(&pontos_maximos, c);
+	verifica_mesas_quarto(&pontos_maximos, c);
+	//seleciona_melhor(c, &pontos_maximos, area_retangulo);
 }
 int main()
 {

@@ -58,14 +58,23 @@ void leitura(vector <int> *buffer)
 		i++;
 
 	}
-	string valor_teste;
-	vector <string> teste_buffer;
-	while(getline(cin, valor_teste))
+	int x=0, y=0, quant_mesas;
+	cin >> quant_mesas;
+	i=0;
+	cout << quant_mesas << "\n";
+	buffer->clear();
+	while(i<quant_mesas)
 	{
-		teste_buffer.push_back(valor_teste);
+		scanf("%i", &x);
+		scanf("%i", &y);
+		buffer->push_back(x);
+		buffer->push_back(y);
+		//buffer->push_back(y);
+		i++;
 	}
-	vector <string> teste;
+	/*vector <string> teste;
 	int j=0;
+	exit(1);
 	for(i=2;i<teste_buffer.size();i++)
 	{
 		//*aux = const_cast<char*>(teste_buffer[i].c_str());
@@ -74,8 +83,8 @@ void leitura(vector <int> *buffer)
 		{
 			buffer->push_back(stoi(teste[j]));
 		}
-	}
-	teste_buffer.clear();
+	}*/
+	exit(1);
 	cout << "Size:" << buffer->size() << "\n";
 	exit(1);
 }
