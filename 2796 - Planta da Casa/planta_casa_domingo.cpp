@@ -53,6 +53,21 @@ void alocar_matriz(casa *c)
 	}
 
 }
+int verifica_existencia(vector <mesa> *pontos_maximos, int *comprimento, int *largura)
+{
+	// 1 se existe , 0 se não existe
+
+	for(auto i=pontos_maximos->begin();i<pontos_maximos->end();i++)
+	{
+		if((*i).comprimento == *comprimento && (*i).largura == *largura)
+		{
+			return 1;
+		}
+	}
+
+
+	return 0;
+}
 int verifica_existencia_mesa(casa *c, int *comprimento, int *largura)
 {
 	// 1 se existe , 0 se não existe
@@ -84,10 +99,8 @@ int calculo_areas(stack <int> *valores, int area_maxima, int i, vector <mesa> *p
 		area =  valor_topo * largura;
 		flag = 1;
 	}
-	
 	if(area > area_maxima)
 		area_maxima = area;
-
 	m_aux.comprimento = valor_topo;
 	if(flag == 1)
 	{
@@ -101,7 +114,6 @@ int calculo_areas(stack <int> *valores, int area_maxima, int i, vector <mesa> *p
 	m_aux.area = m_aux.largura * m_aux.comprimento;
 	pontos_maximos->push_back(m_aux);
 	flag = 0;
-	
 	return area_maxima;
 
 }
@@ -127,7 +139,6 @@ int max_area_histograma(int *m, int largura_casa, vector <mesa> *pontos_maximos)
 	}
 	int area_aux = area_maxima;
 	vector <mesa> aux_pm;
-	
 	while (!valores.empty()) 
     {
     	area_aux = calculo_areas(&valores, area_aux, i, &aux_pm, m);
@@ -140,10 +151,6 @@ int max_area_histograma(int *m, int largura_casa, vector <mesa> *pontos_maximos)
     		pontos_maximos->push_back(j);
     	}
     }
-    
-    stack<int>().swap(valores);
-    aux_pm.clear();
-	
 	return area_maxima;
 }
 int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
@@ -183,7 +190,6 @@ int calcula_subareas_contiguas(casa *c, vector <mesa> *pontos_maximos)
 
 	return area_maxima;
 }
-
 void leitura_alocacao_casa(casa *c)
 {
 	/*
@@ -312,12 +318,16 @@ int main()
 	vector <mesa> pontos_maximos;
 	mesa p;
 
+	//scanf("%i", &c.comprimento_casa); // lê o comprimento da casa
+	//scanf("%i", &c.largura_casa); // lê a largura da casa
 	cin >> c.comprimento_casa >> c.largura_casa;
 	leitura_alocacao_casa(&c); // lê e aloca a casa
 	
 	int area_maxima = calcula_subareas_contiguas(&c, &pontos_maximos);
 
 	calc_pontos_maximos(&pontos_maximos, &p, &c);
+
+	//scanf("%i", &c.quant_mesas); // aqui estou lendo o número total de mesas
 	
 	int j, i, k;
 	mesa m_aux;
@@ -333,7 +343,6 @@ int main()
 	  		q[i][j] = m_aux;
 	  	}
 	}
-	
 	int flag_break = 0;
 	m_aux.existe = 1;
 	for(i=0;i<pontos_maximos.size();i++)
@@ -354,17 +363,9 @@ int main()
 			}
 		}
 	}
-	
 	int tamanho_pontos = pontos_maximos.size();
 	pontos_maximos.clear();
-	
 	cin >> c.quant_mesas;
 	leitura_mesas(&c, &p, area_maxima, q, tamanho_pontos);
-	
-	for(i=0;i<p.comprimento;i++) // liberando espaço de memória
-	{
-		free(q[i]);
-	}
-	free(q);
 	return 0;
 }
