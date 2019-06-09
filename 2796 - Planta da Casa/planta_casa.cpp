@@ -187,10 +187,8 @@ void leitura_alocacao_casa(casa *c)
 void posiciona_mesa(mesa **q, mesa *m, int comprimento, int largura, int *mm, int *ll, int *cc, int flag)
 {
 	int com=0, l=0, max=0;
-	if(q[comprimento][largura].ocupada == 0 || 
-	(q[comprimento][largura].ocupada == 1 && 
-	(m->area > q[comprimento][largura].area ||
-	m->area == q[comprimento][largura].area &&
+	if(q[comprimento][largura].ocupada == 0 || (q[comprimento][largura].ocupada == 1 && 
+	(m->area > q[comprimento][largura].area || m->area == q[comprimento][largura].area &&
 	largura > q[comprimento][largura].largura)))
 	{
 		m->ocupada = 1;
@@ -215,7 +213,7 @@ void posiciona_mesa(mesa **q, mesa *m, int comprimento, int largura, int *mm, in
 		}
 	}
 }
-void leitura_mesas(casa *c, mesa *p, int area_maxima, mesa **q, int tp)
+void leitura_mesas(casa *c, mesa *p, int area_maxima, mesa *q[], int tp)
 {
 	mesa m;
 	int mm=0, ll=0, cc=0;
@@ -294,7 +292,7 @@ mesa **alocar_matriz_quartos(mesa *p)
 	}
 	return q;
 }
-void preenche_matriz(vector <mesa> *pontos_maximos, mesa **q, int area_maxima)
+void preenche_matriz(vector <mesa> *pontos_maximos, mesa *q[], int area_maxima)
 {
 	int j, i, k;
 	mesa m_aux;
