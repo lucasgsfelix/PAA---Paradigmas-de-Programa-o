@@ -28,7 +28,6 @@ class casa
 		int largura_casa = 0;
 		int quant_mesas = 0;
 		int **m;
-		vector <mesa> mesas;
 };
 
 void alocar_matriz(casa *c)
@@ -53,21 +52,6 @@ void alocar_matriz(casa *c)
 	}
 
 }
-int verifica_existencia_mesa(casa *c, int *comprimento, int *largura)
-{
-	// 1 se existe , 0 se não existe
-
-	for(auto &i:c->mesas)
-	{
-		if((i.comprimento == *comprimento && i.largura == *largura)) //girando 90º
-		{
-			return 1;
-		}
-	}
-
-
-	return 0;
-}
 int calculo_areas(stack <int> *valores, int area_maxima, int i, vector <mesa> *pontos_maximos, int *m)
 {
 	int valor_topo, area, flag, largura;
@@ -89,18 +73,14 @@ int calculo_areas(stack <int> *valores, int area_maxima, int i, vector <mesa> *p
 		area_maxima = area;
 
 	m_aux.comprimento = valor_topo;
-	if(flag == 1)
-	{
-		m_aux.largura = largura;
-	}
-	else
-	{
-		m_aux.largura = i;
-	}
+	m_aux.area = area;
 
-	m_aux.area = m_aux.largura * m_aux.comprimento;
+	if(flag == 1)
+		m_aux.largura = largura;
+	else
+		m_aux.largura = i;
+	
 	pontos_maximos->push_back(m_aux);
-	flag = 0;
 	
 	return area_maxima;
 
@@ -113,7 +93,6 @@ int max_area_histograma(int *m, int largura_casa, vector <mesa> *pontos_maximos)
 	*/
 	stack <int> valores; // vai ter o comportamento de um pilha
 	int i=0, area_maxima = 0;
-	mesa m_aux;
 	while(i<largura_casa)
 	{
 		if(valores.empty() || m[valores.top()] <= m[i])
@@ -238,15 +217,13 @@ void posiciona_mesa(mesa **q, mesa *m, int comprimento, int largura, int *mm, in
 }
 void leitura_mesas(casa *c, mesa *p, int area_maxima, mesa **q, int tp)
 {
-	int i, max=0, l=0, com=0;
 	mesa m;
 	int mm=0, ll=0, cc=0;
-	for(i=0;i<c->quant_mesas;i++)
+	for(int i=0;i<c->quant_mesas;i++)
 	{
 		cin >> m.comprimento >> m.largura;
 		m.area = m.comprimento * m.largura;
-		if(m.area <= area_maxima &&
-		verifica_existencia_mesa(c, &m.comprimento, &m.largura) == 0)
+		if(m.area <= area_maxima)
 		{
 			if(tp!=0)
 			{
@@ -263,9 +240,9 @@ void leitura_mesas(casa *c, mesa *p, int area_maxima, mesa **q, int tp)
 			}
 			else
 			{
-				if(m.area > max || m.area == max && m.largura > ll)
+				if(m.area > mm || m.area == mm && m.largura > ll)
 				{
-					max = m.area;
+					mm = m.area;
 					ll = m.largura;
 					cc = m.comprimento;
 				}
@@ -303,11 +280,51 @@ void calc_pontos_maximos(vector <mesa> *pontos_maximos, mesa *p, casa *c)
 		p->largura = c->largura_casa;
 	}
 }
+mesa **alocar_matriz_quartos(mesa *p)
+{
+	mesa m_aux;
+	mesa **q = (mesa**)malloc((p->comprimento + 1) * sizeof(mesa*)); //Aloca um Vetor de Ponteiros	
+	for (int i = 0; i < p->comprimento + 1; i++)
+	{
+		q[i] = (mesa*) malloc((p->largura + 1) * sizeof(mesa));
+	  	for(int j=0;j<p->largura + 1;j++)
+	  	{
+	  		q[i][j] = m_aux;
+	  	}
+	}
+	return q;
+}
+void preenche_matriz(vector <mesa> *pontos_maximos, mesa **q, int area_maxima)
+{
+	int j, i, k;
+	mesa m_aux;
+	
+	m_aux.existe = 1;
+	
+	for(auto const &i:(*pontos_maximos))
+	{
+		if(i.comprimento * i.largura <= area_maxima && i.comprimento > 0 && i.largura > 0)
+		{
+			for(j=i.comprimento;j>=0;j--)
+			{
+				for(k=i.largura;k>=0;k--)
+				{
+					if(q[j][k].existe == 1)
+					{
+						break;
+					}
+					q[j][k] = m_aux;
+				}
+			}
+		}
+	}
+}
 int main()
 {
 
 	ios_base::sync_with_stdio(false);
     cin.tie(NULL);
+	
 	casa c; // objeto que irá armazenar a casa da entrada
 	vector <mesa> pontos_maximos;
 	mesa p;
@@ -319,52 +336,20 @@ int main()
 
 	calc_pontos_maximos(&pontos_maximos, &p, &c);
 	
-	int j, i, k;
-	mesa m_aux;
-	mesa **q = (mesa**)malloc((p.comprimento + 1) * sizeof(mesa*)); //Aloca um Vetor de Ponteiros	
-	for (i = 0; i < p.comprimento + 1; i++)
-	{
-		/*
-			Aloca um Vetor de Inteiros para cada posição do Vetor de Ponteiros.
-		*/
-		q[i] = (mesa*) malloc((p.largura + 1) * sizeof(mesa));
-	  	for(j=0;j<p.largura + 1;j++)
-	  	{
-	  		q[i][j] = m_aux;
-	  	}
-	}
-	
-	int flag_break = 0;
-	m_aux.existe = 1;
-	for(i=0;i<pontos_maximos.size();i++)
-	{
-		if(pontos_maximos[i].comprimento * pontos_maximos[i].largura <= area_maxima
-			&& pontos_maximos[i].comprimento > 0 && pontos_maximos[i].largura > 0)
-		{
-			for(j=pontos_maximos[i].comprimento;j>=0;j--)
-			{
-				for(k=pontos_maximos[i].largura;k>=0;k--)
-				{
-					if(q[j][k].existe == 1)
-					{
-						break;
-					}
-					q[j][k] = m_aux;
-				}
-			}
-		}
-	}
+	mesa **q = alocar_matriz_quartos(&p);
+	preenche_matriz(&pontos_maximos, q, area_maxima);
 	
 	int tamanho_pontos = pontos_maximos.size();
 	pontos_maximos.clear();
-	
+
 	cin >> c.quant_mesas;
 	leitura_mesas(&c, &p, area_maxima, q, tamanho_pontos);
 	
-	for(i=0;i<p.comprimento;i++) // liberando espaço de memória
+	for(int i=0;i<p.comprimento;i++) // liberando espaço de memória
 	{
 		free(q[i]);
 	}
 	free(q);
+
 	return 0;
 }
